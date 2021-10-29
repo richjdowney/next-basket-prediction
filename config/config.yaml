@@ -1,0 +1,125 @@
+pre_processing_dag:
+
+  # Config for pre-processing DAG run
+  dag_id: "pre-processing-sequence-models"
+  default_args:
+    owner: "Rich"
+    start_date: "2021-10-12"
+    end_date: "2021-10-31"
+    depends_on_past: False
+    retries: 0
+    catchup: False
+    email: "richjdowney@gmail.com"
+    email_on_failure: True
+    email_on_retry: False
+  schedule_interval: "@once"
+
+lstm_training_dag:
+
+  # Config for LSTM training DAG run
+  dag_id: "LSTM-training-sequence-models"
+  default_args:
+    owner: "Rich"
+    start_date: "2021-10-12"
+    end_date: "2021-10-31"
+    depends_on_past: False
+    retries: 0
+    catchup: False
+    email: "richjdowney@gmail.com"
+    email_on_failure: True
+    email_on_retry: False
+  schedule_interval: "@once"
+
+emr:
+
+  # AWS settings for EMR cluster
+  Instances:
+    Ec2KeyName: "new-ec2-key-pair"
+    InstanceGroups:
+    - Name: "Master node"
+      InstanceRole: "MASTER"
+      InstanceCount: 1
+      InstanceType: "m5.xlarge"
+    - Name: "Slave nodes"
+      Market: "ON_DEMAND"
+      InstanceRole: "CORE"
+      InstanceType: "m5.xlarge"
+      InstanceCount: 2
+    KeepJobFlowAliveWhenNoSteps: True
+    TerminationProtected: False
+  JobFlowRole: "EMR_EC2_DefaultRole"
+  ServiceRole: "EMR_DefaultRole"
+  Name: "Small"
+  LogUri: "s3://sequence-models/sequence-models-log"
+  ReleaseLabel: "emr-6.2.0"
+  Configurations:
+    - Classification: "spark-env"
+      Configurations:
+      - Classification: "export"
+        Properties:
+          PYSPARK_PYTHON: "/usr/bin/python3"
+  BootstrapActions:
+    - Name: "Install_Dependencies"
+      ScriptBootstrapAction:
+        Path: "s3://sequence-models/bootstrap/install_dependencies.sh"
+  StepConcurrencyLevel: 1
+
+airflow:
+
+  # Config for airflow defaults
+  AwsCredentials: "aws_default"
+
+
+app:
+
+  # Config for files related to running the Spark app on emr
+  RootPath: "/home/ubuntu/sequence_models/"
+  PathToRunners: "/home/ubuntu/sequence_models/runners/"
+  PathToBin: "/home/ubuntu/sequence_models/bin/"
+  PathToEgg: "/home/ubuntu/sequence_models/dist/"
+  PathToUtils: "/home/ubuntu/sequence_models/utils/"
+  EggObject: "sequence_models_egg-0.1-py2.7.egg"
+  StageRunner: "data_staging_runner.py"
+  DataPreProcessingRunner: "data_preprocessing_runner.py"
+  ModelPreProcessingRunner: "model_preprocessing_runner.py"
+  LSTMModelTrainRunner: "lstm_model_train_runner.py"
+  DependenciesShell: "install_dependencies.sh"
+  Requirements: "requirements.txt"
+
+datapreprocessing:
+
+  # Config to data preprocessing parameters
+  sample: "True"
+  sample_rate: "0.1"
+  num_prods: "4900"
+
+lstmmodel:
+
+  # Config for lstm model parameters
+  max_seq_length: "140"
+  max_items_in_bask: "16"
+  embedding_size: 256
+  lstm_units: 50
+  item_embeddings_layer_name: "item_embedding_layer"
+  batch_size: 32
+  num_epochs: 1
+  steps_per_epoch: 10
+  save_path: "/home/ubuntu/sequence_models/model_out/lstm_model"
+  save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings.hdf5"
+  save_item_embeddings_period: 1
+  early_stopping_patience: 5
+  save_period: 1
+
+s3:
+
+  # Config for s3
+  Bucket: "sequence-models"
+  DataFolder: "dh-data"
+  StagingDataPath: "s3://sequence-models/staging-tables/"
+
+  # Paths to runner files on s3(egg app, main runner)
+  egg: "s3://sequence-models/application/sequence_models_egg-0.1-py2.7.egg"
+  StageRunner: "s3://sequence-models/application/data_staging_runner.py"
+  DataPreProcessingRunner: "s3://sequence-models/application/data_preprocessing_runner.py"
+  ModelPreProcessingRunner: "s3://sequence-models/application/model_preprocessing_runner.py"
+  LSTMModelTrainRunner: "s3://sequence-models/application/lstm_model_train_runner.py"
