@@ -59,7 +59,15 @@ new data.
 
 ### Model Details
 
+The next basket prediction model is based on the following architecture:
 
+![](Images/next_bask_architecture.PNG)  
+
+The input data contains sequences of customer baskets.  The model is trained by first converting the items into
+embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
+basket is then passed through an LSTM layer.  A dense layer with a softmax activation then calculates the probability
+that each item will be found in the next basket of the customer sequence.  The final output of the sequence represents
+the customers prediction for their next transaction.
 
 ### Planned future developments
 
