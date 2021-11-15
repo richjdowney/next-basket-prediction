@@ -27,9 +27,13 @@ The infrastructure utilized in the pipeline is shown in the diagram below:
 
 ![](Images/infrastructure.PNG)
 
-The decision to utilize Spark was taken as retailer data is typically very large and this use-case requires each transaction to be 'scored' with a 'Shopping Mission'.  As the number of transactions typically runs into millions scaleability quickly becomes an issue with standard Python libraries.
+The decision to utilize Spark was taken as retailer data is typically very large and this use-case requires significant
+pre-processing for the prediction model to be trained and items "scored" with a probability of being in the customers
+next basket.  As the number of transactions typically runs into millions scaleability quickly becomes an issue with
+standard Python libraries.
 
-PyCharm was utilized as the IDE and code was automatically deployed to an ec2 instance with Airflow installed with a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and modelling is run with PySpark and SparkML.  
+PyCharm was utilized as the IDE and code was automatically deployed to an ec2 instance with Airflow installed with 
+a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and modelling is run with PySpark and SparkML.  
 
 ### Airflow Orchestration
 
