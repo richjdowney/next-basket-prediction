@@ -40,29 +40,25 @@ a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and m
 In order to run Airflow it was installed on the same EC2 cluster where the code is deployed.  Steps to install Airflow 
 using a Postgres database can be found [here](https://medium.com/@abraham.pabbathi/airflow-on-aws-ec2-instance-with-ubuntu-aff8d3206171)
 
-The image below illustrates the orchestration of the tasks within Airflow:
+The image below illustrates the orchestration of the pre-processing tasks within Airflow:
 
-![](Images/airflow_DAG.PNG)  
+![](Images/pre_processing_dag.PNG)  
 
 The DAG contains the following tasks:
 
 **create_app_egg:**  Creates an egg file from the latest code  
 **upload_app_to_s3:**  Uploads the application egg and Spark runner files containing the main functions to S3  
-**create_job_flow:**  Creates an EMR cluster  
-**branching:**  Determines if new models should be trained or if an existing model should be utilized to score a new transaction file  
-**add_step_XXX:**  Adds Spark steps for staging data, pre-processing data, training and tuning LDA models, profiling and model scoring  
+**data_model_preprocessing_job_flow:**  Creates an EMR cluster
+**add_step_data_XXX:**  Adds Spark steps for staging data and pre-processing data into output required for modeling  
 **watch_stage_XXX:**  Sensors for each staging step to determine when they are complete  
 **remove_cluster:**  Terminates the cluster when all steps are completed  
 
+In addition there is a separate DAG for training the LSTM, this has been kept separate to allow it to run independently
+of the data preperation.  In future versions this will be updated to allow for model training and / or scoring of
+new data.
+
 ### Model Details
 
-In order to create 'Shopping Missions' LDA was utilized in a similar way to topic modelling from NLP.  Each transaction was considered to be a document and the items words within a document.  
-
-The diagram below illustrates 2 examples of the types of 'Shopping Missions' that can be found utilizing this technique:  
-
-![](Images/mission_examples.PNG)
-
-LDA is particularly suited to this task because it is not influenced by the order in which the items are added to the basket in the same way that the order of the words in a document does not influence the topic to which the document is assigned.  
 
 
 ### Planned future developments
