@@ -37,7 +37,8 @@ a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and m
 
 ### Airflow Orchestration
 
-In order to run Airflow it was installed on the same EC2 cluster where the code is deployed.  Steps to install Airflow using a Postgres database can be found [here](https://medium.com/@abraham.pabbathi/airflow-on-aws-ec2-instance-with-ubuntu-aff8d3206171)
+In order to run Airflow it was installed on the same EC2 cluster where the code is deployed.  Steps to install Airflow 
+using a Postgres database can be found [here](https://medium.com/@abraham.pabbathi/airflow-on-aws-ec2-instance-with-ubuntu-aff8d3206171)
 
 The image below illustrates the orchestration of the tasks within Airflow:
 
@@ -62,3 +63,13 @@ The diagram below illustrates 2 examples of the types of 'Shopping Missions' tha
 ![](Images/mission_examples.PNG)
 
 LDA is particularly suited to this task because it is not influenced by the order in which the items are added to the basket in the same way that the order of the words in a document does not influence the topic to which the document is assigned.  
+
+
+### Planned future developments
+
+| Task Type           | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| Testing             | Add unit and integration tests to code base           |
+| Evaluation          | Add function to calculate *masked* evaluation metrics |
+| Model Enhancement   | Add Attention layer to RNN model                      |
+| Model Enhancement   | Add transformer model and compare to simple RNN       |
