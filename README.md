@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Generating "next basket" predictions using sequence models
 
 ### Project scope
