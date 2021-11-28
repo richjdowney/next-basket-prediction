@@ -5,3 +5,4 @@ boto3
 sklearn
 pydot
 graphviz
+pytest

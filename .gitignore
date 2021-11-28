@@ -8,4 +8,4 @@ build/
 dist/
 scratch/
 venv/
-/runners/test_model.py
+/runners/interactive_model_build.py

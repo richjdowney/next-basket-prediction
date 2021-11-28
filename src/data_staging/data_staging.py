@@ -93,7 +93,7 @@ def import_data(spark: SparkSession, bucket: str, data_folder: str) -> tuple:
     for i in iterate_bucket_items(bucket=bucket):
         if data_folder in i["Key"]:
 
-            data_location = "s3://{}/{}".format(bucket, i["Key"])
+            data_location = "s3a://{}/{}".format(bucket, i["Key"])
 
             if i["Key"] == "{}/time.csv".format(data_folder):
                 logger.info("Importing data for {}".format(i["Key"]))
@@ -101,6 +101,7 @@ def import_data(spark: SparkSession, bucket: str, data_folder: str) -> tuple:
 
             elif "transactions" in i["Key"]:
                 logger.info("Importing data for {}".format(i["Key"]))
+
                 trans_data_wk = spark.read.csv(
                     data_location, header=True, schema=trans_schema
                 )
