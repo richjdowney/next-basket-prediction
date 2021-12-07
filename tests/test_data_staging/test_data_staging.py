@@ -12,7 +12,7 @@ from pyspark.sql.types import (
 from src.data_staging.data_staging import import_data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def get_raw_test_data(spark):
     """Imports the data for testing"""
     bucket = "sequence-models"
@@ -93,3 +93,4 @@ def test_import_data(get_raw_test_data):
 
     assert time_df.schema == expected_time_schema, "time_df schema does not match expected schema"
     assert trans_df.schema == expected_trans_schema, "trans_df schema does not match expected schema"
+
