@@ -115,11 +115,11 @@ s3:
   # Config for s3
   Bucket: "sequence-models"
   DataFolder: "dh-data"
-  StagingDataPath: "s3://sequence-models/staging-tables/"
+  StagingDataPath: "s3a://sequence-models/staging-tables/"
 
   # Paths to runner files on s3(egg app, main runner)
-  egg: "s3://sequence-models/application/sequence_models_egg-0.1-py2.7.egg"
-  StageRunner: "s3://sequence-models/application/data_staging_runner.py"
-  DataPreProcessingRunner: "s3://sequence-models/application/data_preprocessing_runner.py"
-  ModelPreProcessingRunner: "s3://sequence-models/application/model_preprocessing_runner.py"
-  LSTMModelTrainRunner: "s3://sequence-models/application/lstm_model_train_runner.py"
+  egg: "s3a://sequence-models/application/sequence_models_egg-0.1-py2.7.egg"
+  StageRunner: "s3a://sequence-models/application/data_staging_runner.py"
+  DataPreProcessingRunner: "s3a://sequence-models/application/data_preprocessing_runner.py"
+  ModelPreProcessingRunner: "s3a://sequence-models/application/model_preprocessing_runner.py"
+  LSTMModelTrainRunner: "s3a://sequence-models/application/lstm_model_train_runner.py"
