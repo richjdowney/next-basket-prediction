@@ -42,9 +42,9 @@ def test_import_data(get_raw_test_data):
     trans_df = get_raw_test_data[1]
 
     time_df_n_expected = 3
-    time_df_n_actual = len(time_df.columns())
+    time_df_n_actual = len(time_df.columns)
     trans_df_n_expected = 22
-    trans_df_n_actual = len(trans_df.columns())
+    trans_df_n_actual = len(trans_df.columns)
 
     msg_time = f"expected ({time_df_n_expected}) and received ({time_df_n_actual}) column count for time_df does not match"
     msg_trans = f"expected ({trans_df_n_expected}) and received ({trans_df_n_actual}) column count for trans_df does not match"
