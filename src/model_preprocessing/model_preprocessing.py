@@ -123,17 +123,17 @@ def create_test_valid(cust_list: list, train_test_valid_perc: list) -> tuple:
     rnd.shuffle(cust_list)
 
     # Get the observation numbers needed to split the customer list
-    train_num = int(len(cust_list) * train_test_valid_perc[0])
+    train_num = round(len(cust_list) * train_test_valid_perc[0])
     print(train_num)
-    test_num = int(
+    test_num = round(
         len(cust_list) * (train_test_valid_perc[0] + train_test_valid_perc[1])
     )
     valid_num = len(cust_list)
 
     # Get train, test and validation records
     train = cust_list[0:train_num]
-    test = cust_list[train_num + 1: test_num]
-    valid = cust_list[test_num + 1: valid_num]
+    test = cust_list[train_num:test_num]
+    valid = cust_list[test_num:valid_num]
 
     print(
         "There are {} records in train, {} in test and {} in validation".format(
