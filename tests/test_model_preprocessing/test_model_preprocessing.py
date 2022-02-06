@@ -106,7 +106,7 @@ def test_convert_prod_to_index(cust_list, prod_dict):
 @pytest.mark.parametrize(
     "cust_bask_list, max_items, expected_cust_bask_list_pad",  # parameter for the test function
     [
-        ([[1, 0, 0], [0, 0], [0, 2, 0, 0, 3]], 5.0[[1, 0, 0, 0, 0], [0, 0, 0, 0, 0]]),
+        ([[1, 0, 0], [0, 0], [0, 2, 0, 0, 3]], 5.0, [[1, 0, 0, 0, 0], [0, 0, 0, 0, 0]]),
         (
             [[0, 4], [0, 0, 0, 0, 4], [0, 0, 0], [0, 0], [0, 0, 0, 0], [0]],
             5,

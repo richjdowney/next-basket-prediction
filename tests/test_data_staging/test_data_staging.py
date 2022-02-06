@@ -88,9 +88,6 @@ def test_import_data(get_raw_test_data):
 
     expected_time_schema = StructType(time_field)
 
-    time_df = get_raw_test_data[0]
-    trans_df = get_raw_test_data[1]
-
     assert time_df.schema == expected_time_schema, "time_df schema does not match expected schema"
     assert trans_df.schema == expected_trans_schema, "trans_df schema does not match expected schema"
 
