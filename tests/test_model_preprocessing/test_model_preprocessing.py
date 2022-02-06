@@ -106,34 +106,34 @@ def test_convert_prod_to_index(cust_list, prod_dict):
 @pytest.mark.parametrize(
     "cust_bask_list, max_items, expected_cust_bask_list_pad",  # parameter for the test function
     [
-        ([[1, 0, 0], [0, 0], [0, 2, 0, 0, 3]], 5.0, [[1, 0, 0, 0, 0], [0, 0, 0, 0, 0]]),
+        ([[[1, 0, 0], [0, 0], [0, 2, 0, 0, 3]]], 5, [[[1, 0, 0, 0, 0], [0, 0, 0, 0, 0]]]),
         (
-            [[0, 4], [0, 0, 0, 0, 4], [0, 0, 0], [0, 0], [0, 0, 0, 0], [0]],
+            [[[0, 4], [0, 0, 0, 0, 4], [0, 0, 0], [0, 0], [0, 0, 0, 0], [0]]],
             5,
-            [
+            [[
                 [0, 4, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
-            ],
+            ]],
         ),
-        ([[0, 0], [0, 0]], 5, [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]),
+        ([[[0, 0], [0, 0]]], 5, [[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]]),
         (
-            [[0, 0], [0, 0, 2], [0], [0, 0], [2]],
+            [[[0, 0], [0, 0, 2], [0], [0, 0], [2]]],
             5,
-            [
+            [[
                 [0, 0, 0, 0, 0],
                 [0, 0, 2, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [2, 0, 0, 0, 0],
-            ],
+            ]],
         ),
-        ([[0]], 3, [[0, 0, 0]]),
+        ([[[0]]], 3, [[[0, 0, 0]]]),
     ],
 )
-def test_cust_bask_list_pad(cust_bask_list, max_items, expected_cust_bask_list):
+def test_cust_bask_list_pad(cust_bask_list, max_items, expected_cust_bask_list_pad):
     """Test function cust_bask_list_pad
     GIVEN:  Array of lists of product ID's purchased by customers and a value for the maximum number of items in
     a basket
@@ -146,10 +146,10 @@ def test_cust_bask_list_pad(cust_bask_list, max_items, expected_cust_bask_list):
 
     msg = (
         f"expected output in cust_bassk_list_pad and received output do not match for "
-        f"records {cust_bask_list} and {expected_cust_bask_list}"
+        f"records {cust_bask_list} and {expected_cust_bask_list_pad}"
     )
 
-    assert cust_bask_list_pad == expected_cust_bask_list, msg
+    assert cust_bask_list_pad == expected_cust_bask_list_pad, msg
 
 
 def test_create_test_valid(cust_list_train_test, train_test_valid_perc):
@@ -186,8 +186,8 @@ def test_create_test_valid(cust_list_train_test, train_test_valid_perc):
 @pytest.mark.parametrize(
     "cust_list_x_y, num_prods, expected_x, expected_y",  # parameter for the test function
     [
-        ([[2, 2, 3, 3, 3], [2, 0, 0, 0, 0]], 5, [[2, 2, 3, 3, 3]], [1, 0, 1, 0, 0, 0]),
-        ([[5, 5, 5, 5, 5], [1, 2, 2, 5, 4]], 5, [[5, 5, 5, 5, 5]], [0, 1, 1, 0, 1, 1]),
+        ([[[2, 2, 3, 3, 3], [2, 0, 0, 0, 0]]], 5, [[[2, 2, 3, 3, 3]]], [[1, 0, 1, 0, 0, 0]]),
+        ([[[5, 5, 5, 5, 5], [1, 2, 2, 5, 4]]], 5, [[[5, 5, 5, 5, 5]]], [[0, 1, 1, 0, 1, 1]]),
     ],
 )
 def test_create_x_y_list(cust_list_x_y, num_prods, expected_x, expected_y):
@@ -211,17 +211,16 @@ def test_create_x_y_list(cust_list_x_y, num_prods, expected_x, expected_y):
     "cust_list, max_seq, max_items, expected_cust_list_pad",  # parameter for the test function
     [
         (
-            [[5, 3, 8, 9, 20], [9, 2, 1, 2, 30]],
+            [[[5, 3, 8, 9, 20], [9, 2, 1, 2, 30]]],
             3,
             5,
-            [[5, 3, 8, 9, 20], [9, 2, 1, 2, 30], [0, 0, 0, 0, 0]],
+            [[[5, 3, 8, 9, 20], [9, 2, 1, 2, 30], [0, 0, 0, 0, 0]]]
         ),
         (
-            [[3, 2, 1, 5, 6]],
-            [0, 1, 1, 0, 1, 1],
+            [[[3, 2, 1, 5, 6],[0, 1, 1, 0, 1, 1]]],
             3,
             5,
-            [[3, 2, 1, 5, 6], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+            [[[3, 2, 1, 5, 6], [0, 1, 1, 0, 1, 1], [0, 0, 0, 0, 0]]],
         ),
     ],
 )
