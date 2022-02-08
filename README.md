@@ -69,11 +69,16 @@ basket is then passed through an LSTM layer.  A dense layer with a softmax activ
 that each item will be found in the next basket of the customer sequence.  The final output of the sequence represents
 the customers prediction for their next transaction.
 
+### How to run tests
+
+Unit tests have been written with pytest to test functions for data staging, data preprocessing, model pre precessing
+and to test the generator used for the LSTM model.  To run the tests navigate to the tests folder (or sub directories
+for each test) and run pytest.
+
 ### Planned future developments
 
 | Task Type           | Description                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------|
-| Testing             | Add unit and integration tests to code base                                                |
 | Evaluation          | Add function to calculate *masked* evaluation metrics                                      |
 | Scoring             | Add ability to score new customer / transaction sequence files to generate new predictions |
 | Model Enhancement   | Add Attention layer to RNN model                                                           |
