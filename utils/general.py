@@ -56,3 +56,29 @@ def training_data_to_s3(obj: any, bucket: str, key: str):
     if isinstance(obj, np.ndarray):
         np.savetxt(key, obj, delimiter=",")
         s3c.upload_file(key, bucket, key)
+
+
+def download_s3(filename: str, bucket: str, s3: boto3.client) -> any:
+    """Function to download file from s3
+
+    Parameters
+    ----------
+    filename : str
+        Name of file to download with extension
+    bucket : str
+        name of s3 bucket
+    s3 : boto3.client
+        boto3 client connection to connect to s3
+
+    Returns
+    -------
+    outfile: any
+       Downloaded file from s3
+
+    """
+    with open(filename, "wb") as data:
+        s3.download_fileobj(bucket, filename, data)
+    with open(filename, "rb") as data:
+        outfile = pickle.load(data)
+
+    return outfile

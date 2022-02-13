@@ -36,6 +36,7 @@ def iterate_bucket_items(bucket: str):
 
 def import_data(spark: SparkSession, bucket: str, data_folder: str) -> tuple:
     """Function to import all data csv's from the S3 bucket
+
     Parameters
     ----------
     spark : SparkSession
@@ -44,6 +45,7 @@ def import_data(spark: SparkSession, bucket: str, data_folder: str) -> tuple:
         name of s3 bucket
     data_folder : str
         name of the folder in the bucket containing the data
+
     Returns
     -------
     time_df : pyspark.sql.DataFrame

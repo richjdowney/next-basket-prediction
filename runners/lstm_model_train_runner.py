@@ -8,8 +8,8 @@ from keras.utils.vis_utils import plot_model
 from src.generators.lstm_generator import lstm_data_generator
 from src.models.sequence_models import LSTMModel
 from utils.logging_framework import log
+from utils.general import download_s3
 import boto3
-import pickle
 
 
 def task_lstm_model_fit(
@@ -45,21 +45,20 @@ def task_lstm_model_fit(
 
     log.info("Download training, validation and test data from s3")
 
-    with open("cust_list_train_x.txt", "wb") as data:
-        s3.download_fileobj(bucket, "cust_list_train_x.txt", data)
-    with open("cust_list_train_x.txt", "rb") as data:
-        cust_list_train_x = pickle.load(data)
+    # Download training data
+    cust_list_train_x = download_s3("cust_list_train_x.txt", bucket, s3)
+    cust_list_train_y = download_s3("cust_list_train_y.txt", bucket, s3)
 
-    with open("cust_list_train_y.txt", "wb") as data:
-        s3.download_fileobj(bucket, "cust_list_train_y.txt", data)
-    with open("cust_list_train_y.txt", "rb") as data:
-        cust_list_train_y = pickle.load(data)
+    # Download validation data
+    cust_list_valid_x = download_s3("cust_list_valid_x.txt", bucket, s3)
+    cust_list_valid_y = download_s3("cust_list_valid_y.txt", bucket, s3)
 
-    # Product dictionary mapping
-    with open("prod_dictionary.pkl", "wb") as data:
-        s3.download_fileobj(bucket, "prod_dictionary.pkl", data)
-    with open("prod_dictionary.pkl", "rb") as data:
-        prod_dictionary = pickle.load(data)
+    # Download test data
+    cust_list_test_x = download_s3("cust_list_test_x.txt", bucket, s3)
+    cust_list_test_y = download_s3("cust_list_test_y.txt", bucket, s3)
+
+    log.info("Download product dictionary mapping", bucket, s3)
+    prod_dictionary = download_s3("prod_dictionary.pkl", bucket, s3)
 
     num_prods = len(prod_dictionary)
     log.info("number of prods is {}".format(num_prods))
@@ -95,6 +94,7 @@ def task_lstm_model_fit(
 
     history = m.train(
         data_generator,
+        validation_data=(cust_list_valid_x, cust_list_valid_y),
         epochs=num_epochs,
         steps_per_epoch=steps_per_epoch,
         early_stopping_patience=early_stopping_patience,
@@ -104,6 +104,9 @@ def task_lstm_model_fit(
         save_item_embeddings_period=save_item_embeddings_period,
         item_embeddings_layer_name=item_embeddings_layer_name,
     )
+
+    # Get evaluation metrics on test set data
+    m.evaluate(test_data=(cust_list_test_x, cust_list_test_y))
 
     elapsed_epochs = len(history.history["loss"])
 

@@ -3,7 +3,10 @@ from utils.logging_framework import log
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
+from sklearn.metrics import precision_score, recall_score, f1_score
 import h5py
+import numpy as np
+
 
 DEFAULT_EMBEDDING_SIZE = 300
 DEFAULT_LSTM_UNITS = 50
@@ -56,6 +59,7 @@ class NextBasketPredModel(object):
     def train(
         self,
         generator,
+        validation_data,
         steps_per_epoch=DEFAULT_STEPS_PER_EPOCH,
         epochs=DEFAULT_NUM_EPOCHS,
         early_stopping_patience=None,
@@ -87,6 +91,7 @@ class NextBasketPredModel(object):
             callbacks=callbacks,
             steps_per_epoch=steps_per_epoch,
             epochs=epochs,
+            validation_data=(validation_data[0], validation_data[1]),
         )
 
         return history
@@ -102,6 +107,21 @@ class NextBasketPredModel(object):
         log.info("Loading model from %s", path)
         self._model = load_model(path)
 
+    def evaluate(self, test_data):
+
+        log.info("Evaluating model on test data")
+        score = self._model.evaluate(test_data[0], test_data[1], verbose=0)
+        log.info(f"Test loss: {score[0]} / Test accuracy: {score[1]}")
+
+        validation_preds = self._model.predict(test_data[0])
+        validation_preds = np.where(validation_preds > 0.5, 1, 0)
+
+        precision = precision_score(test_data[1], validation_preds, average="macro")
+        recall = recall_score(test_data[1], validation_preds, average="macro")
+        f1 = f1_score(test_data[1], validation_preds, average="macro")
+
+        log.info(f"Test precision: {precision} / Test recall: {recall} / Test F1: {f1}")
+
 
 class _SaveItemEmbeddings(Callback):
     def __init__(self, path, period, item_embeddings_layer_name):
@@ -110,7 +130,7 @@ class _SaveItemEmbeddings(Callback):
         self.period = period
         self.item_embeddings_layer_name = item_embeddings_layer_name
 
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_end(self, epoch):
         if epoch % self.period != 0:
             return
 
