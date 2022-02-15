@@ -4,8 +4,8 @@ pre_processing_dag:
   dag_id: "pre-processing-sequence-models"
   default_args:
     owner: "Rich"
-    start_date: "2021-10-12"
-    end_date: "2021-10-31"
+    start_date: "2022-02-23"
+    end_date: "2022-02-28"
     depends_on_past: False
     retries: 0
     catchup: False
@@ -20,8 +20,8 @@ lstm_training_dag:
   dag_id: "LSTM-training-sequence-models"
   default_args:
     owner: "Rich"
-    start_date: "2021-10-12"
-    end_date: "2021-10-31"
+    start_date: "2022-02-13"
+    end_date: "2022-02-28"
     depends_on_past: False
     retries: 0
     catchup: False
@@ -102,7 +102,7 @@ lstmmodel:
   lstm_units: 50
   item_embeddings_layer_name: "item_embedding_layer"
   batch_size: 32
-  num_epochs: 1
+  num_epochs: 2
   steps_per_epoch: 10
   save_path: "/home/ubuntu/sequence_models/model_out/lstm_model"
   save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings.hdf5"

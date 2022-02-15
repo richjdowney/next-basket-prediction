@@ -48,7 +48,7 @@ class NextBasketPredModel(object):
 
     def compile(self, optimizer=None):
         if not optimizer:
-            optimizer = SGD(lr=0.01, momentum=0.9, nesterov=True)
+            optimizer = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
 
         self._model.compile(
             optimizer=optimizer,
@@ -60,6 +60,7 @@ class NextBasketPredModel(object):
         self,
         generator,
         validation_data,
+        test_data,
         steps_per_epoch=DEFAULT_STEPS_PER_EPOCH,
         epochs=DEFAULT_NUM_EPOCHS,
         early_stopping_patience=None,
@@ -76,14 +77,17 @@ class NextBasketPredModel(object):
                 EarlyStopping(monitor="loss", patience=early_stopping_patience)
             )
         if save_path and save_period:
-            callbacks.append(ModelCheckpoint(save_path, period=save_period))
+            callbacks.append(ModelCheckpoint(save_path, save_freq=save_period))
         if save_item_embeddings_path and save_item_embeddings_period:
             callbacks.append(
                 _SaveItemEmbeddings(
-                    save_item_embeddings_path,
-                    save_item_embeddings_period,
-                    item_embeddings_layer_name,
+                    period=save_item_embeddings_period,
+                    path=save_item_embeddings_path,
+                    item_embeddings_layer_name=item_embeddings_layer_name,
                 )
+            )
+        callbacks.append(
+            _TestSetEvaluation(test_data)
             )
 
         history = self._model.fit(
@@ -107,39 +111,22 @@ class NextBasketPredModel(object):
         log.info("Loading model from %s", path)
         self._model = load_model(path)
 
-    def evaluate(self, test_data):
-
-        log.info("Evaluating model on test data")
-        score = self._model.evaluate(test_data[0], test_data[1], verbose=0)
-        log.info(f"Test loss: {score[0]} / Test accuracy: {score[1]}")
-
-        validation_preds = self._model.predict(test_data[0])
-        validation_preds = np.where(validation_preds > 0.5, 1, 0)
-
-        precision = precision_score(test_data[1], validation_preds, average="macro")
-        recall = recall_score(test_data[1], validation_preds, average="macro")
-        f1 = f1_score(test_data[1], validation_preds, average="macro")
-
-        log.info(f"Test precision: {precision} / Test recall: {recall} / Test F1: {f1}")
-
 
 class _SaveItemEmbeddings(Callback):
-    def __init__(self, path, period, item_embeddings_layer_name):
-        super().__init__()
-        self.path = path
+    """Save item embeddings"""
+    def __init__(self, period, path, item_embeddings_layer_name):
         self.period = period
+        self.path = path
         self.item_embeddings_layer_name = item_embeddings_layer_name
 
-    def on_epoch_end(self, epoch):
+    def on_epoch_end(self, epoch, logs={}):
         if epoch % self.period != 0:
             return
 
-        path = self.path.format(epoch=epoch)
-        log.info("Saving item embeddings to {}".format(path))
         embeddings = _item_embeddings_from_model(
             self.model, self.item_embeddings_layer_name
         )
-        _write_item_embeddings(embeddings, path)
+        _write_item_embeddings(embeddings, self.path)
 
 
 def _item_embeddings_from_model(keras_model, item_embeddings_layer_name):
@@ -152,3 +139,28 @@ def _write_item_embeddings(item_embeddings, path):
     log.info("Saving item embeddings to {}".format(path))
     with h5py.File(path, "w") as f:
         f.create_dataset("item_embedding_layer", data=item_embeddings)
+
+
+class _TestSetEvaluation(Callback):
+    """Run evaluation metrics on training end on test set"""
+    def __init__(self, test_data):
+        self.test_data = test_data
+
+    def on_train_end(self, logs={}):
+        _evaluate(self.model, self.test_data)
+
+
+def _evaluate(keras_model, test_data):
+
+    log.info("Evaluating model on test data")
+    score = keras_model.evaluate(test_data[0], test_data[1], verbose=0)
+    log.info(f"Test loss: {score[0]} / Test accuracy: {score[1]}")
+
+    validation_preds = keras_model.predict(test_data[0])
+    validation_preds = np.where(validation_preds > 0.5, 1, 0)
+
+    precision = precision_score(test_data[1], validation_preds, average="macro")
+    recall = recall_score(test_data[1], validation_preds, average="macro")
+    f1 = f1_score(test_data[1], validation_preds, average="macro")
+
+    log.info(f"Test precision: {precision} / Test recall: {recall} / Test F1: {f1}")

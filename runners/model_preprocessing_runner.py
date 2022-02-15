@@ -2,12 +2,10 @@ import sys
 
 sys.path.insert(1, "/home/ubuntu/sequence_models")
 
-from pyspark.sql import SparkSession
 import boto3
-import pickle
 from utils.logging_framework import log
 from src.model_preprocessing.model_preprocessing import *
-from utils.general import training_data_to_s3
+from utils.general import training_data_to_s3, download_s3
 
 
 if __name__ == "__main__":
@@ -18,36 +16,22 @@ if __name__ == "__main__":
     max_items_in_bask = int(sys.argv[4])
     num_prods = int(sys.argv[5])
 
-    spark = SparkSession.builder.appName("sequence-models").getOrCreate()
-
     # ========== Download the training data from s3 ==========
 
     log.info("Download data and dictionaries from s3")
     s3 = boto3.client("s3")
 
     # List of customer / basket / item
-    with open("cust_list.txt", "wb") as data:
-        s3.download_fileobj(bucket, "cust_list.txt", data)
-    with open("cust_list.txt", "rb") as data:
-        cust_bask_item_list = pickle.load(data)
+    cust_bask_item_list = download_s3("cust_list.txt", bucket, s3)
 
     # Customer index list (lists of customers in same order as all_cust_data)
-    with open("cust_id.txt", "wb") as data:
-        s3.download_fileobj(bucket, "cust_id.txt", data)
-    with open("cust_id.txt", "rb") as data:
-        cust_id_list = pickle.load(data)
+    cust_id_list = download_s3("cust_id.txt", bucket, s3)
 
     # Product dictionary mapping
-    with open("prod_dictionary.pkl", "wb") as data:
-        s3.download_fileobj(bucket, "prod_dictionary.pkl", data)
-    with open("prod_dictionary.pkl", "rb") as data:
-        prod_dictionary = pickle.load(data)
+    prod_dictionary = download_s3("prod_dictionary.pkl", bucket, s3)
 
     # Reversed product dictionary mapping
-    with open("reversed_prod_dictionary.pkl", "wb") as data:
-        s3.download_fileobj(bucket, "reversed_prod_dictionary.pkl", data)
-    with open("reversed_prod_dictionary.pkl", "rb") as data:
-        reversed_prod_dictionary = pickle.load(data)
+    reversed_prod_dictionary = download_s3("reversed_prod_dictionary.pkl", bucket, s3)
 
     log.info("First 5 records in cust_bask_item_list")
     log.info(cust_bask_item_list[0:5])
@@ -87,22 +71,49 @@ if __name__ == "__main__":
 
     # Create x and y datasets - y will be the final basket in the sequence as this will be a 'next basket' prediction
     log.info("Creating x and y datasets - y will be the final basket in the sequence")
-    cust_list_train_x, cust_list_train_y = create_x_y_list(cust_list_train, num_prods)
-    cust_list_test_x, cust_list_test_y = create_x_y_list(cust_list_test, num_prods)
-    cust_list_valid_x, cust_list_valid_y = create_x_y_list(cust_list_valid, num_prods)
+    cust_list_train_x, cust_list_train_y = create_x_y_list(
+        cust_list_train, num_prods, max_seq_length
+    )
+    cust_list_test_x, cust_list_test_y = create_x_y_list(
+        cust_list_test, num_prods, max_seq_length
+    )
+    cust_list_valid_x, cust_list_valid_y = create_x_y_list(
+        cust_list_valid, num_prods, max_seq_length
+    )
 
     # Pad all customer x sequences to a standard length i.e. all customers will have the same number of
     # transactions (with some padded)
     log.info("Padding all customer x sequences")
-    cust_list_train_x = pad_cust_seq(cust_list_train_x, max_seq_length, max_items_in_bask)
+    cust_list_train_x = pad_cust_seq(
+        cust_list_train_x, max_seq_length, max_items_in_bask
+    )
     cust_list_test_x = pad_cust_seq(cust_list_test_x, max_seq_length, max_items_in_bask)
-    cust_list_valid_x = pad_cust_seq(cust_list_valid_x, max_seq_length, max_items_in_bask)
+    cust_list_valid_x = pad_cust_seq(
+        cust_list_valid_x, max_seq_length, max_items_in_bask
+    )
+
+    # After processing the x and y lists must be equal
+    assert len(cust_list_train_x) == len(cust_list_train_y), "Training x and y are not equal"
+    assert len(cust_list_test_x) == len(cust_list_test_y), "Test x and y are not equal"
+    assert len(cust_list_valid_x) == len(cust_list_valid_y), "Validation x and y are not equal"
 
     # Upload all training, testing and validation data
     log.info("Uploading training, testing and validation model data to s3")
-    training_data_to_s3(obj=cust_list_train_x, bucket=bucket, key="cust_list_train_x.txt")
-    training_data_to_s3(obj=cust_list_train_y, bucket=bucket, key="cust_list_train_y.txt")
-    training_data_to_s3(obj=cust_list_test_x, bucket=bucket, key="cust_list_test_x.txt")
-    training_data_to_s3(obj=cust_list_test_y, bucket=bucket, key="cust_list_test_y.txt")
-    training_data_to_s3(obj=cust_list_valid_x, bucket=bucket, key="cust_list_valid_x.txt")
-    training_data_to_s3(obj=cust_list_valid_y, bucket=bucket, key="cust_list_valid_y.txt")
+    training_data_to_s3(
+        obj=cust_list_train_x, bucket=bucket, key="cust_list_train_x.txt"
+    )
+    training_data_to_s3(
+        obj=cust_list_train_y, bucket=bucket, key="cust_list_train_y.txt"
+    )
+    training_data_to_s3(
+        obj=cust_list_test_x, bucket=bucket, key="cust_list_test_x.txt"
+    )
+    training_data_to_s3(
+        obj=cust_list_test_y, bucket=bucket, key="cust_list_test_y.txt"
+    )
+    training_data_to_s3(
+        obj=cust_list_valid_x, bucket=bucket, key="cust_list_valid_x.txt"
+    )
+    training_data_to_s3(
+        obj=cust_list_valid_y, bucket=bucket, key="cust_list_valid_y.txt"
+    )

@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1, "/home/ubuntu/sequence_models")
 
 import os
+import numpy as np
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from keras.utils.vis_utils import plot_model
 from src.generators.lstm_generator import lstm_data_generator
@@ -53,6 +54,8 @@ def task_lstm_model_fit(
     cust_list_valid_x = download_s3("cust_list_valid_x.txt", bucket, s3)
     cust_list_valid_y = download_s3("cust_list_valid_y.txt", bucket, s3)
 
+    log.info("shape of valid_x {}, shape of valid_y {}".format(np.shape(cust_list_valid_x), np.shape(cust_list_valid_y)))
+
     # Download test data
     cust_list_test_x = download_s3("cust_list_test_x.txt", bucket, s3)
     cust_list_test_y = download_s3("cust_list_test_y.txt", bucket, s3)
@@ -95,6 +98,7 @@ def task_lstm_model_fit(
     history = m.train(
         data_generator,
         validation_data=(cust_list_valid_x, cust_list_valid_y),
+        test_data=(cust_list_test_x, cust_list_test_y),
         epochs=num_epochs,
         steps_per_epoch=steps_per_epoch,
         early_stopping_patience=early_stopping_patience,

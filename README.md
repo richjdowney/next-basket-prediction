@@ -79,7 +79,6 @@ for each test) and run pytest.
 
 | Task Type           | Description                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------|
-| Evaluation          | Add function to calculate *masked* evaluation metrics                                      |
 | Scoring             | Add ability to score new customer / transaction sequence files to generate new predictions |
 | Model Enhancement   | Add Attention layer to RNN model                                                           |
 | Model Enhancement   | Add transformer model and compare to simple RNN                                            |

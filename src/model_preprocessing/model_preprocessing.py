@@ -144,7 +144,7 @@ def create_test_valid(cust_list: list, train_test_valid_perc: list) -> tuple:
     return train, test, valid
 
 
-def create_x_y_list(cust_list: list, num_prods: int) -> tuple:
+def create_x_y_list(cust_list: list, num_prods: int, max_seq: int) -> tuple:
     """
     Function to create x and y lists for training - the y list will be the customers last basket
     as this is a next basket prediction
@@ -155,6 +155,8 @@ def create_x_y_list(cust_list: list, num_prods: int) -> tuple:
       List of customers and items purchased in each transaction
     num_prods: int
       The number of products being modelled
+    max_seq: int
+      Length of the sequence required
 
     Returns
     -------
@@ -174,8 +176,9 @@ def create_x_y_list(cust_list: list, num_prods: int) -> tuple:
 
         cust = cust_list[i]
 
-        # Customer must have had at least 2 transactions
-        if len(cust) >= 2:
+        # Customer must have had at least 2 transactions and number of baskets must be less than
+        # allowable max
+        if 2 <= len(cust) < max_seq:
             x = cust[:-1]
             y = cust[-1]
 
@@ -188,6 +191,8 @@ def create_x_y_list(cust_list: list, num_prods: int) -> tuple:
             cust_list_x.append(x)
             cust_list_y.append(y_multi_label)
 
+    assert len(cust_list_x) == len(cust_list_y), "length of x and y are not equal"
+
     return cust_list_x, cust_list_y
 
 
@@ -199,7 +204,7 @@ def pad_cust_seq(cust_list: list, max_seq: int, max_items: int) -> list:
     ----------
     cust_list: list
       List of customers and items purchased in each transaction
-    max_seq: list
+    max_seq: int
       Length of the sequence required
     max_items: int
         Maximum number of items allowed for basket to be used in modeling
