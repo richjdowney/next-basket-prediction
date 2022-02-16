@@ -1,11 +1,11 @@
 from abc import ABCMeta
 from utils.logging_framework import log
+import model_utils
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
-from sklearn.metrics import precision_score, recall_score, f1_score
 import h5py
-import numpy as np
+import os
 
 
 DEFAULT_EMBEDDING_SIZE = 300
@@ -104,8 +104,8 @@ class NextBasketPredModel(object):
         log.info("Saving model to %s", path)
         self._model.save(path)
 
-    def save_item_embeddings(self, path):
-        _write_item_embeddings(self.item_embeddings, path)
+    def save_item_embeddings(self, path, epoch):
+        _write_item_embeddings(self.item_embeddings, path, epoch)
 
     def load(self, path):
         log.info("Loading model from %s", path)
@@ -126,7 +126,7 @@ class _SaveItemEmbeddings(Callback):
         embeddings = _item_embeddings_from_model(
             self.model, self.item_embeddings_layer_name
         )
-        _write_item_embeddings(embeddings, self.path)
+        _write_item_embeddings(embeddings, self.path, epoch)
 
 
 def _item_embeddings_from_model(keras_model, item_embeddings_layer_name):
@@ -135,9 +135,12 @@ def _item_embeddings_from_model(keras_model, item_embeddings_layer_name):
             return layer.get_weights()[0]
 
 
-def _write_item_embeddings(item_embeddings, path):
+def _write_item_embeddings(item_embeddings, path, epoch):
+    path = path.format(epoch)
     log.info("Saving item embeddings to {}".format(path))
-    with h5py.File(path, "w") as f:
+    os.makedirs(path, exist_ok=True)
+    full_path = os.path.join(path, "item_embeddings.hdf5")
+    with h5py.File(full_path, "w") as f:
         f.create_dataset("item_embedding_layer", data=item_embeddings)
 
 
@@ -147,20 +150,7 @@ class _TestSetEvaluation(Callback):
         self.test_data = test_data
 
     def on_train_end(self, logs={}):
-        _evaluate(self.model, self.test_data)
+        model_utils.evaluate(self.model, self.test_data)
 
 
-def _evaluate(keras_model, test_data):
 
-    log.info("Evaluating model on test data")
-    score = keras_model.evaluate(test_data[0], test_data[1], verbose=0)
-    log.info(f"Test loss: {score[0]} / Test accuracy: {score[1]}")
-
-    validation_preds = keras_model.predict(test_data[0])
-    validation_preds = np.where(validation_preds > 0.5, 1, 0)
-
-    precision = precision_score(test_data[1], validation_preds, average="macro")
-    recall = recall_score(test_data[1], validation_preds, average="macro")
-    f1 = f1_score(test_data[1], validation_preds, average="macro")
-
-    log.info(f"Test precision: {precision} / Test recall: {recall} / Test F1: {f1}")

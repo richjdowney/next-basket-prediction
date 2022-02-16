@@ -95,7 +95,7 @@ def task_lstm_model_fit(
 
     # ========== Train model ==========
 
-    history = m.train(
+    m.train(
         data_generator,
         validation_data=(cust_list_valid_x, cust_list_valid_y),
         test_data=(cust_list_test_x, cust_list_test_y),
@@ -109,17 +109,14 @@ def task_lstm_model_fit(
         item_embeddings_layer_name=item_embeddings_layer_name,
     )
 
-    # Get evaluation metrics on test set data
-    m.evaluate(test_data=(cust_list_test_x, cust_list_test_y))
-
-    elapsed_epochs = len(history.history["loss"])
-
     if save_path:
-        m.save(save_path.format(epoch=elapsed_epochs))
+        full_path = os.path.join(save_path, "final")
+        m.save(full_path)
 
     if save_item_embeddings_path:
-        m.save_item_embeddings(save_item_embeddings_path.format(epoch=elapsed_epochs))
+        m.save_item_embeddings(save_item_embeddings_path, epoch="final")
 
-    log.info("Uploading embeddings to s3")
-    filename = os.path.basename(save_item_embeddings_path)
-    s3.upload_file(Filename=save_item_embeddings_path, Key=filename, Bucket=bucket)
+        log.info("Uploading embeddings to s3")
+        filename = save_item_embeddings_path.format("final")
+        full_path = os.path.join(filename, "item_embeddings.hdf5")
+        s3.upload_file(Filename=full_path, Key=full_path, Bucket=bucket)

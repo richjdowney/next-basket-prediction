@@ -104,8 +104,8 @@ lstmmodel:
   batch_size: 32
   num_epochs: 2
   steps_per_epoch: 10
-  save_path: "/home/ubuntu/sequence_models/model_out/lstm_model"
-  save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings.hdf5"
+  save_path: "/home/ubuntu/sequence_models/model_out/lstm_model/"
+  save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings/epoch_{}/"
   save_item_embeddings_period: 1
   early_stopping_patience: 5
   save_period: 1

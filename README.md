@@ -33,7 +33,8 @@ next basket.  As the number of transactions typically runs into millions scaleab
 standard Python libraries.
 
 PyCharm was utilized as the IDE and code was automatically deployed to an ec2 instance with Airflow installed with 
-a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and modelling is run with PySpark and SparkML.  
+a Postgres RDS instance.  Data was stored in an s3 bucket, data processing and modelling is run with PySpark and
+Tensorflow.  
 
 ### Airflow Orchestration
 
