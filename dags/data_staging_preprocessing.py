@@ -12,7 +12,7 @@ from airflow.contrib.operators.emr_add_steps_operator import EmrAddStepsOperator
 from airflow.contrib.operators.emr_terminate_job_flow_operator import (
     EmrTerminateJobFlowOperator,
 )
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python_operator import PythonOperator,  BranchPythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.trigger_rule import TriggerRule
 from config.load_config import load_yaml
@@ -21,6 +21,7 @@ from config.load_config import Config
 from utils.send_email import notify_email
 from utils.logging_framework import log
 from utils.copy_app_to_s3 import copy_app_to_s3
+from runners import lstm_model_train_runner
 
 # Load the config file
 config = load_yaml(constants.config_path)
@@ -31,7 +32,28 @@ try:
 except TypeError as error:
     log.error(error)
 
-with DAG(**config["pre_processing_dag"]) as dag:
+
+def train_only():
+    """Check if DAG should only train the model and skip the data and model pre-processing
+
+        To run only training "Yes" should be passed to the config
+
+    """
+
+    train = False
+    run_training_config = config["app"]["TrainOnly"]
+
+    if run_training_config.lower() == "yes":
+        train = True
+
+    return train
+
+
+# Determine if only scoring should be executed
+run_training_only = train_only()
+
+
+with DAG(**config["model_train_dag"]) as dag:
 
     # Create egg file
     create_egg = BashOperator(
@@ -52,6 +74,13 @@ with DAG(**config["pre_processing_dag"]) as dag:
         aws_conn_id="aws_default",
         emr_conn_id="emr_default",
         on_failure_callback=notify_email,
+    )
+
+    # Determine if only training is to be run
+    branching = BranchPythonOperator(
+        task_id="branching",
+        dag=dag,
+        python_callable=lambda: "run_lstm_model_train" if run_training_only else "add_step_data_staging",
     )
 
     # ========== DATA STAGING ==========
@@ -184,7 +213,7 @@ with DAG(**config["pre_processing_dag"]) as dag:
         on_failure_callback=notify_email,
     )
 
-    # Remove the EMR cluster
+    # Remove the EMR cluster - Spark not needed for model training and scoring
     cluster_remover = EmrTerminateJobFlowOperator(
         task_id="remove_EMR_cluster",
         job_flow_id="{{ task_instance.xcom_pull(task_ids='data_model_preprocessing_job_flow', key='return_value') }}",
@@ -193,8 +222,34 @@ with DAG(**config["pre_processing_dag"]) as dag:
         trigger_rule=TriggerRule.ONE_SUCCESS,
     )
 
-    create_egg >> upload_code >> data_prep_cluster_creator >> data_staging >> data_staging_step_sensor >> \
+    # ========== LSTM MODEL TRAINING ==========
+    task = "lstm_model_train"
+    lstm_fit = PythonOperator(
+        task_id="run_lstm_model_train",
+        dag=dag,
+        provide_context=True,
+        python_callable=lstm_model_train_runner.task_lstm_model_fit,
+        op_kwargs={
+            "bucket": config["s3"]["Bucket"],
+            "max_seq_length": config["lstmmodel"]["max_seq_length"],
+            "max_items_in_bask": config["lstmmodel"]["max_items_in_bask"],
+            "embedding_size": config["lstmmodel"]["embedding_size"],
+            "lstm_units": config["lstmmodel"]["lstm_units"],
+            "item_embeddings_layer_name": config["lstmmodel"]["item_embeddings_layer_name"],
+            "batch_size": config["lstmmodel"]["batch_size"],
+            "num_epochs": config["lstmmodel"]["num_epochs"],
+            "steps_per_epoch": config["lstmmodel"]["steps_per_epoch"],
+            "save_path": config["lstmmodel"]["save_path"],
+            "save_item_embeddings_path": config["lstmmodel"]["save_item_embeddings_path"],
+            "save_item_embeddings_period": config["lstmmodel"]["save_item_embeddings_period"],
+            "early_stopping_patience": config["lstmmodel"]["early_stopping_patience"],
+            "save_period": config["lstmmodel"]["save_period"],
+        },
+        on_failure_callback=notify_email,
+    )
+
+    create_egg >> upload_code >> data_prep_cluster_creator >> >> branching >> data_staging >> data_staging_step_sensor >> \
         data_preprocessing >> data_preprocessing_step_sensor >> model_preprocessing >> model_preprocessing_step_sensor \
-    >> cluster_remover
+    >> cluster_remover >> lstm_fit
 
-
+    branching >> lstm_fit

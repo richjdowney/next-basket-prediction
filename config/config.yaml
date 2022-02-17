@@ -1,6 +1,6 @@
-pre_processing_dag:
+model_train_dag:
 
-  # Config for pre-processing DAG run
+  # Config for LSTM training DAG run
   dag_id: "pre-processing-sequence-models"
   default_args:
     owner: "Rich"
@@ -14,21 +14,6 @@ pre_processing_dag:
     email_on_retry: False
   schedule_interval: "@once"
 
-lstm_training_dag:
-
-  # Config for LSTM training DAG run
-  dag_id: "LSTM-training-sequence-models"
-  default_args:
-    owner: "Rich"
-    start_date: "2022-02-13"
-    end_date: "2022-02-28"
-    depends_on_past: False
-    retries: 0
-    catchup: False
-    email: "richjdowney@gmail.com"
-    email_on_failure: True
-    email_on_retry: False
-  schedule_interval: "@once"
 
 emr:
 
@@ -85,6 +70,7 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
+  TrainOnly: "Yes"
 
 datapreprocessing:
 
