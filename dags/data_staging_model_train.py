@@ -21,7 +21,7 @@ from config.load_config import Config
 from utils.send_email import notify_email
 from utils.logging_framework import log
 from utils.copy_app_to_s3 import copy_app_to_s3
-from runners import lstm_model_train_runner
+from runners.lstm_model_train_runner import *
 
 # Load the config file
 config = load_yaml(constants.config_path)
@@ -228,7 +228,7 @@ with DAG(**config["model_train_dag"]) as dag:
         task_id="run_lstm_model_train",
         dag=dag,
         provide_context=True,
-        python_callable=lstm_model_train_runner.task_lstm_model_fit,
+        python_callable=task_lstm_model_fit,
         op_kwargs={
             "bucket": config["s3"]["Bucket"],
             "max_seq_length": config["lstmmodel"]["max_seq_length"],
@@ -248,8 +248,9 @@ with DAG(**config["model_train_dag"]) as dag:
         on_failure_callback=notify_email,
     )
 
-    create_egg >> upload_code >> data_prep_cluster_creator >> >> branching >> data_staging >> data_staging_step_sensor >> \
+    create_egg >> upload_code >> data_prep_cluster_creator >> branching >> data_staging >> data_staging_step_sensor >> \
         data_preprocessing >> data_preprocessing_step_sensor >> model_preprocessing >> model_preprocessing_step_sensor \
     >> cluster_remover >> lstm_fit
 
     branching >> lstm_fit
+
