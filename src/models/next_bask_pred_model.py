@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from utils.logging_framework import log
-import model_utils
+from src.models.model_utils import evaluate
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
@@ -150,7 +150,7 @@ class _TestSetEvaluation(Callback):
         self.test_data = test_data
 
     def on_train_end(self, logs={}):
-        model_utils.evaluate(self.model, self.test_data)
+        evaluate(self.model, self.test_data)
 
 
 
