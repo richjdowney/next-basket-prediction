@@ -80,3 +80,6 @@ for each test) and run pytest.
 | Task Type           | Description                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------|
 | Model Enhancement   | Add Attention layer to RNN model                                                           |
+| Model Enhancement   | Add customer embedding and additional dense layers to RNN model output                     |
+| Model Enhancement   | Add regularization layers                                                                  |
+| Model Enhancement   | Add additional embeddings for categorical contextual features e.g. categories in basket    |
