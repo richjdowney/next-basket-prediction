@@ -43,20 +43,19 @@ using a Postgres database can be found [here](https://medium.com/@abraham.pabbat
 
 The image below illustrates the orchestration of the pre-processing tasks within Airflow:
 
-![](Images/pre_processing_dag.PNG)  
+![](Images/model_train_dag.PNG)  
 
 The DAG contains the following tasks:
 
 **create_app_egg:**  Creates an egg file from the latest code  
 **upload_app_to_s3:**  Uploads the application egg and Spark runner files containing the main functions to S3  
+**branching:** Decision point to run data pre-processing or skip to model building  
 **data_model_preprocessing_job_flow:**  Creates an EMR cluster
 **add_step_data_XXX:**  Adds Spark steps for staging data and pre-processing data into output required for modeling  
 **watch_stage_XXX:**  Sensors for each staging step to determine when they are complete  
 **remove_cluster:**  Terminates the cluster when all steps are completed  
+**run_lstm_model_train:**  Runs LSTM model training  
 
-In addition there is a separate DAG for training the LSTM, this has been kept separate to allow it to run independently
-of the data preperation.  In future versions this will be updated to allow for model training and / or scoring of
-new data.
 
 ### Model Details
 
@@ -80,6 +79,4 @@ for each test) and run pytest.
 
 | Task Type           | Description                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------|
-| Scoring             | Add ability to score new customer / transaction sequence files to generate new predictions |
 | Model Enhancement   | Add Attention layer to RNN model                                                           |
-| Model Enhancement   | Add transformer model and compare to simple RNN                                            |
