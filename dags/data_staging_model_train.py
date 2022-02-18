@@ -67,6 +67,13 @@ with DAG(**config["model_train_dag"]) as dag:
         task_id="upload_app_to_s3", python_callable=copy_app_to_s3, op_args=[config]
     )
 
+    # Determine if only training is to be run
+    branching = BranchPythonOperator(
+        task_id="branching",
+        dag=dag,
+        python_callable=lambda: "run_lstm_model_train" if run_training_only else "data_model_preprocessing_job_flow",
+    )
+
     # Start the cluster for data prep
     data_prep_cluster_creator = EmrCreateJobFlowOperator(
         task_id="data_model_preprocessing_job_flow",
@@ -74,13 +81,6 @@ with DAG(**config["model_train_dag"]) as dag:
         aws_conn_id="aws_default",
         emr_conn_id="emr_default",
         on_failure_callback=notify_email,
-    )
-
-    # Determine if only training is to be run
-    branching = BranchPythonOperator(
-        task_id="branching",
-        dag=dag,
-        python_callable=lambda: "run_lstm_model_train" if run_training_only else "add_step_data_staging",
     )
 
     # ========== DATA STAGING ==========
@@ -248,7 +248,7 @@ with DAG(**config["model_train_dag"]) as dag:
         on_failure_callback=notify_email,
     )
 
-    create_egg >> upload_code >> data_prep_cluster_creator >> branching >> data_staging >> data_staging_step_sensor >> \
+    create_egg >> upload_code >>  branching >> data_prep_cluster_creator >> data_staging >> data_staging_step_sensor >> \
         data_preprocessing >> data_preprocessing_step_sensor >> model_preprocessing >> model_preprocessing_step_sensor \
     >> cluster_remover >> lstm_fit
 

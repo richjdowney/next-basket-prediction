@@ -18,20 +18,7 @@ class ConfigDefaultArgs(pydantic.BaseModel):
     email_on_retry: bool
 
 
-class ConfigPreProcessingDag(pydantic.BaseModel):
-    """Configuration for the DAG runs"""
-
-    # Name for the DAG run
-    dag_id: str
-
-    # Default args for DAG run e.g. owner, start_date, end_date
-    default_args: ConfigDefaultArgs
-
-    # DAG schedule interval
-    schedule_interval: str
-
-
-class ConfigLSTMTrainingDag(pydantic.BaseModel):
+class ConfigModelTrainDag(pydantic.BaseModel):
     """Configuration for the DAG runs"""
 
     # Name for the DAG run
@@ -178,8 +165,7 @@ class ConfigS3(pydantic.BaseModel):
 class Config(pydantic.BaseModel):
     """Main configuration"""
 
-    pre_processing_dag: ConfigPreProcessingDag
-    lstm_training_dag: ConfigLSTMTrainingDag
+    model_train_dag: ConfigModelTrainDag
     emr: ConfigEmr
     app: ConfigApp
     datapreprocessing: ConfigDataPreProcessing
