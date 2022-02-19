@@ -58,8 +58,7 @@ with DAG(**config["model_train_dag"]) as dag:
     # Create egg file
     create_egg = BashOperator(
         task_id="create_app_egg",
-        bash_command="cd /home/ubuntu/sequence_models && python /home/ubuntu/sequence_models/setup.py bdist_egg",
-        run_as_user="airflow",
+        bash_command="cd /home/ubuntu/sequence_models && sudo python /home/ubuntu/sequence_models/setup.py bdist_egg",
     )
 
     # Copy application files to s3
@@ -70,7 +69,6 @@ with DAG(**config["model_train_dag"]) as dag:
     # Determine if only training is to be run
     branching = BranchPythonOperator(
         task_id="branching",
-        dag=dag,
         python_callable=lambda: "run_lstm_model_train" if run_training_only else "data_model_preprocessing_job_flow",
     )
 
@@ -223,7 +221,6 @@ with DAG(**config["model_train_dag"]) as dag:
     )
 
     # ========== LSTM MODEL TRAINING ==========
-    task = "lstm_model_train"
     lstm_fit = PythonOperator(
         task_id="run_lstm_model_train",
         dag=dag,
@@ -246,9 +243,10 @@ with DAG(**config["model_train_dag"]) as dag:
             "save_period": config["lstmmodel"]["save_period"],
         },
         on_failure_callback=notify_email,
+        trigger_rule=TriggerRule.ONE_SUCCESS,
     )
 
-    create_egg >> upload_code >>  branching >> data_prep_cluster_creator >> data_staging >> data_staging_step_sensor >> \
+    create_egg >> upload_code >> branching >> data_prep_cluster_creator >> data_staging >> data_staging_step_sensor >> \
         data_preprocessing >> data_preprocessing_step_sensor >> model_preprocessing >> model_preprocessing_step_sensor \
     >> cluster_remover >> lstm_fit
 
