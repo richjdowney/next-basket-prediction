@@ -16,6 +16,7 @@ def evaluate(model: Model, test_data: np.array):
       array containing lists of x and y values
 
     """
+
     log.info("Evaluating model on test data")
     score = model.evaluate(test_data[0], test_data[1], verbose=0)
     log.info(f"Test loss: {score[0]} / Test accuracy: {score[1]}")

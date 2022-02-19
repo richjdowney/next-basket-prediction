@@ -52,6 +52,10 @@ def train_only():
 # Determine if only scoring should be executed
 run_training_only = train_only()
 
+if run_training_only:
+    log.info("Running model training only")
+else:
+    log.info("Running full data prep and training pipeline")
 
 with DAG(**config["model_train_dag"]) as dag:
 
@@ -243,7 +247,7 @@ with DAG(**config["model_train_dag"]) as dag:
             "save_period": config["lstmmodel"]["save_period"],
         },
         on_failure_callback=notify_email,
-        trigger_rule=TriggerRule.ONE_SUCCESS,
+        trigger_rule=TriggerRule.ALL_DONE
     )
 
     create_egg >> upload_code >> branching >> data_prep_cluster_creator >> data_staging >> data_staging_step_sensor >> \
