@@ -2,6 +2,6 @@ PyYAML
 typing
 pydantic
 boto3
-sklearn
 pydot
 graphviz
+scikit-learn

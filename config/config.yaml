@@ -36,7 +36,7 @@ emr:
   ServiceRole: "EMR_DefaultRole"
   Name: "Small"
   LogUri: "s3://sequence-models/sequence-models-log"
-  ReleaseLabel: "emr-6.2.0"
+  ReleaseLabel: "emr-6.5.0"
   Configurations:
     - Classification: "spark-env"
       Configurations:
@@ -70,7 +70,7 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
-  TrainOnly: "Yes"
+  TrainOnly: "No"
 
 datapreprocessing:
 

@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1, "/home/ubuntu/sequence_models")
 
 import boto3
+from pyspark.sql import SparkSession
 from utils.logging_framework import log
 from src.model_preprocessing.model_preprocessing import *
 from utils.general import training_data_to_s3, download_s3
@@ -15,6 +16,8 @@ if __name__ == "__main__":
     max_seq_length = int(sys.argv[3])
     max_items_in_bask = int(sys.argv[4])
     num_prods = int(sys.argv[5])
+
+    spark = SparkSession.builder.appName("sequence-models").getOrCreate()
 
     # ========== Download the training data from s3 ==========
 
