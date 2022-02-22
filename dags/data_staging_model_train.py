@@ -245,6 +245,7 @@ with DAG(**config["model_train_dag"]) as dag:
             "save_item_embeddings_period": config["lstmmodel"]["save_item_embeddings_period"],
             "early_stopping_patience": config["lstmmodel"]["early_stopping_patience"],
             "save_period": config["lstmmodel"]["save_period"],
+            "eval_samp_rate": config["lstmmodel"]["eval_samp_rate"]
         },
         on_failure_callback=notify_email,
         trigger_rule=TriggerRule.ALL_DONE

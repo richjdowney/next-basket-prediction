@@ -70,13 +70,13 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
-  TrainOnly: "No"
+  TrainOnly: "Yes"
 
 datapreprocessing:
 
   # Config to data preprocessing parameters
   sample: "True"
-  sample_rate: "0.1"
+  sample_rate: "0.5"
   num_prods: "4900"
 
 lstmmodel:
@@ -95,6 +95,7 @@ lstmmodel:
   save_item_embeddings_period: 1
   early_stopping_patience: 5
   save_period: 1
+  eval_samp_rate: 0.1
 
 s3:
 

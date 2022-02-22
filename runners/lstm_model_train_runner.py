@@ -28,6 +28,7 @@ def task_lstm_model_fit(
     save_item_embeddings_period: int,
     early_stopping_patience: int,
     save_period: int,
+    eval_samp_rate: int,
 ):
 
     # these parameters are read in originally as strings as they are passed to an EMR cluster in another
@@ -99,6 +100,7 @@ def task_lstm_model_fit(
         data_generator,
         validation_data=(cust_list_valid_x, cust_list_valid_y),
         test_data=(cust_list_test_x, cust_list_test_y),
+        eval_samp_rate=eval_samp_rate,
         epochs=num_epochs,
         steps_per_epoch=steps_per_epoch,
         early_stopping_patience=early_stopping_patience,

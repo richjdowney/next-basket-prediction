@@ -125,6 +125,7 @@ class ConfigLSTMModel(pydantic.BaseModel):
     save_item_embeddings_period: int
     early_stopping_patience: int
     save_period: int
+    eval_samp_rate: float
 
 
 class ConfigAirflow(pydantic.BaseModel):
