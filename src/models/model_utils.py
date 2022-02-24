@@ -30,6 +30,8 @@ def evaluate(model: Model, test_data: np.array, eval_samp_rate: float):
         temp = list(zip(x, y))
         random.shuffle(temp)
         x, y = zip(*temp)
+        x = list(x)
+        y = list(y)
         samp_num = round(len(x) * eval_samp_rate)
         x = x[0:samp_num]
         y = y[0:samp_num]

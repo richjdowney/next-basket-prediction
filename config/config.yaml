@@ -70,12 +70,12 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
-  TrainOnly: "Yes"
+  TrainOnly: "No"
 
 datapreprocessing:
 
   # Config to data preprocessing parameters
-  sample: "True"
+  sample: "False"
   sample_rate: "0.5"
   num_prods: "4900"
 
@@ -89,13 +89,13 @@ lstmmodel:
   item_embeddings_layer_name: "item_embedding_layer"
   batch_size: 32
   num_epochs: 1
-  steps_per_epoch: 10
+  steps_per_epoch: 2
   save_path: "/home/ubuntu/sequence_models/model_out/lstm_model/"
   save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings/epoch_{}/"
   save_item_embeddings_period: 1
   early_stopping_patience: 5
   save_period: 1
-  eval_samp_rate: 0.1
+  eval_samp_rate: 0.2
 
 s3:
 
