@@ -75,8 +75,8 @@ app:
 datapreprocessing:
 
   # Config to data preprocessing parameters
-  sample: "True"
-  sample_rate: "0.1"
+  sample: "False"
+  sample_rate: "0.5"
   num_prods: "4900"
 
 lstmmodel:
@@ -89,12 +89,13 @@ lstmmodel:
   item_embeddings_layer_name: "item_embedding_layer"
   batch_size: 32
   num_epochs: 1
-  steps_per_epoch: 10
+  steps_per_epoch: 2
   save_path: "/home/ubuntu/sequence_models/model_out/lstm_model/"
   save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings/epoch_{}/"
   save_item_embeddings_period: 1
   early_stopping_patience: 5
   save_period: 1
+  eval_samp_rate: 0.2
 
 s3:
 

@@ -69,6 +69,7 @@ class NextBasketPredModel(object):
         save_item_embeddings_path=None,
         save_item_embeddings_period=None,
         item_embeddings_layer_name=None,
+        eval_samp_rate=None,
     ):
 
         callbacks = []
@@ -87,7 +88,7 @@ class NextBasketPredModel(object):
                 )
             )
         callbacks.append(
-            _TestSetEvaluation(test_data)
+            _TestSetEvaluation(test_data, eval_samp_rate)
             )
 
         history = self._model.fit(
@@ -146,11 +147,12 @@ def _write_item_embeddings(item_embeddings, path, epoch):
 
 class _TestSetEvaluation(Callback):
     """Run evaluation metrics on training end on test set"""
-    def __init__(self, test_data):
+    def __init__(self, test_data, eval_samp_rate):
         self.test_data = test_data
+        self.eval_samp_rate = eval_samp_rate
 
     def on_train_end(self, logs={}):
-        evaluate(self.model, self.test_data)
+        evaluate(self.model, self.test_data, self.eval_samp_rate)
 
 
 
