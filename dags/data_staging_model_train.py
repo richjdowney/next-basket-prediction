@@ -239,13 +239,14 @@ with DAG(**config["model_train_dag"]) as dag:
             "item_embeddings_layer_name": config["lstmmodel"]["item_embeddings_layer_name"],
             "batch_size": config["lstmmodel"]["batch_size"],
             "num_epochs": config["lstmmodel"]["num_epochs"],
+            "validation_steps": config["lstmmodel"]["validation_steps"],
+            "validation_freq": config["lstmmodel"]["validation_freq"],
             "steps_per_epoch": config["lstmmodel"]["steps_per_epoch"],
             "save_path": config["lstmmodel"]["save_path"],
             "save_item_embeddings_path": config["lstmmodel"]["save_item_embeddings_path"],
             "save_item_embeddings_period": config["lstmmodel"]["save_item_embeddings_period"],
             "early_stopping_patience": config["lstmmodel"]["early_stopping_patience"],
-            "save_period": config["lstmmodel"]["save_period"],
-            "eval_samp_rate": config["lstmmodel"]["eval_samp_rate"]
+            "save_period": config["lstmmodel"]["save_period"]
         },
         on_failure_callback=notify_email,
         trigger_rule=TriggerRule.ALL_DONE

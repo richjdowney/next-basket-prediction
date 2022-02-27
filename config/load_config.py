@@ -117,15 +117,18 @@ class ConfigLSTMModel(pydantic.BaseModel):
     embedding_size: int
     lstm_units: int
     item_embeddings_layer_name: str
-    batch_size: int
+    train_batch_size: int
+    valid_batch_size: int
+    test_batch_size: int
     num_epochs: int
+    validation_steps: int
+    validation_freq: int
     steps_per_epoch: int
     save_path: str
     save_item_embeddings_path: str
     save_item_embeddings_period: int
     early_stopping_patience: int
     save_period: int
-    eval_samp_rate: float
 
 
 class ConfigAirflow(pydantic.BaseModel):

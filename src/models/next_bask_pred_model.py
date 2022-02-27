@@ -4,6 +4,7 @@ from src.models.model_utils import evaluate
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.models import load_model
+from tensorflow.keras.metrics import BinaryAccuracy, Recall, Precision
 import h5py
 import os
 
@@ -12,6 +13,8 @@ DEFAULT_EMBEDDING_SIZE = 300
 DEFAULT_LSTM_UNITS = 50
 DEFAULT_NUM_EPOCHS = 250
 DEFAULT_STEPS_PER_EPOCH = 10000
+DEFAULT_VALIDATION_STEPS = 100
+DEFAULT_VALIDATION_FREQ = 1
 
 
 class NextBasketPredModel(object):
@@ -46,30 +49,35 @@ class NextBasketPredModel(object):
     def build(self):
         raise NotImplementedError()
 
-    def compile(self, optimizer=None):
+    def compile(self, optimizer=None, learning_rate=0.01):
         if not optimizer:
-            optimizer = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
+            optimizer = SGD(learning_rate=learning_rate, momentum=0.9, nesterov=True)
 
         self._model.compile(
             optimizer=optimizer,
             loss="binary_crossentropy",
-            metrics=["accuracy"],
+            metrics=[
+                BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                Recall(),
+                Precision(),
+            ],
         )
 
     def train(
         self,
-        generator,
-        validation_data,
-        test_data,
+        train_data_generator,
+        validation_data_generator,
+        test_data_generator,
         steps_per_epoch=DEFAULT_STEPS_PER_EPOCH,
         epochs=DEFAULT_NUM_EPOCHS,
+        validation_steps=DEFAULT_VALIDATION_STEPS,
+        validation_freq=DEFAULT_VALIDATION_FREQ,
         early_stopping_patience=None,
         save_path=None,
         save_period=None,
         save_item_embeddings_path=None,
         save_item_embeddings_period=None,
         item_embeddings_layer_name=None,
-        eval_samp_rate=None,
     ):
 
         callbacks = []
@@ -87,16 +95,16 @@ class NextBasketPredModel(object):
                     item_embeddings_layer_name=item_embeddings_layer_name,
                 )
             )
-        callbacks.append(
-            _TestSetEvaluation(test_data, eval_samp_rate)
-            )
+        callbacks.append(_TestSetEvaluation(test_data_generator))
 
         history = self._model.fit(
-            generator,
+            train_data_generator,
             callbacks=callbacks,
             steps_per_epoch=steps_per_epoch,
             epochs=epochs,
-            validation_data=(validation_data[0], validation_data[1]),
+            validation_data=validation_data_generator,
+            validation_steps=validation_steps,
+            validation_freq=validation_freq,
         )
 
         return history
@@ -115,6 +123,7 @@ class NextBasketPredModel(object):
 
 class _SaveItemEmbeddings(Callback):
     """Save item embeddings"""
+
     def __init__(self, period, path, item_embeddings_layer_name):
         self.period = period
         self.path = path
@@ -147,12 +156,9 @@ def _write_item_embeddings(item_embeddings, path, epoch):
 
 class _TestSetEvaluation(Callback):
     """Run evaluation metrics on training end on test set"""
-    def __init__(self, test_data, eval_samp_rate):
-        self.test_data = test_data
-        self.eval_samp_rate = eval_samp_rate
+
+    def __init__(self, test_data_generator):
+        self.test_data = next(test_data_generator)
 
     def on_train_end(self, logs={}):
-        evaluate(self.model, self.test_data, self.eval_samp_rate)
-
-
-
+        evaluate(self.model, self.test_data)

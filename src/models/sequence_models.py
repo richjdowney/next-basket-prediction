@@ -30,6 +30,6 @@ class LSTMModel(NextBasketPredModel):
 
         embedded_basket = tf.reduce_mean(embedded_sequence, axis=2)
         lstm = LSTM(self._lstm_units, return_sequences=False)(embedded_basket)
-        softmax = Dense(self._num_prods + 1, activation="softmax")(lstm)
+        sigmoid = Dense(self._num_prods + 1, activation="sigmoid")(lstm)
 
-        self._model = Model(inputs=[sequence_input], outputs=softmax)
+        self._model = Model(inputs=[sequence_input], outputs=sigmoid)

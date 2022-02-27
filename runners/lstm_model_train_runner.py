@@ -20,15 +20,18 @@ def task_lstm_model_fit(
     embedding_size: int,
     lstm_units: int,
     item_embeddings_layer_name: str,
-    batch_size: int,
+    train_batch_size: int,
+    valid_batch_size: int,
+    test_batch_size: int,
     num_epochs: int,
+    validation_steps: int,
+    validation_freq: int,
     steps_per_epoch: int,
     save_path: str,
     save_item_embeddings_path: str,
     save_item_embeddings_period: int,
     early_stopping_patience: int,
     save_period: int,
-    eval_samp_rate: int,
 ):
 
     # these parameters are read in originally as strings as they are passed to an EMR cluster in another
@@ -67,10 +70,24 @@ def task_lstm_model_fit(
     num_prods = len(prod_dictionary)
     log.info("number of prods is {}".format(num_prods))
 
-    data_generator = lstm_data_generator(
-        batch_size=batch_size,
+    train_data_generator = lstm_data_generator(
+        batch_size=train_batch_size,
         cust_list_x=cust_list_train_x,
         cust_list_y=cust_list_train_y,
+        shuffle=True,
+    )
+
+    validation_data_generator = lstm_data_generator(
+        batch_size=valid_batch_size,
+        cust_list_x=cust_list_valid_x,
+        cust_list_y=cust_list_valid_y,
+        shuffle=True,
+    )
+
+    test_data_generator = lstm_data_generator(
+        batch_size=test_batch_size,
+        cust_list_x=cust_list_test_x,
+        cust_list_y=cust_list_test_y,
         shuffle=True,
     )
 
@@ -84,7 +101,7 @@ def task_lstm_model_fit(
     )
 
     m.build()
-    m.compile()
+    m.compile(learning_rate=0.1)
 
     # Plot model
     plot_model(
@@ -97,11 +114,12 @@ def task_lstm_model_fit(
     # ========== Train model ==========
 
     m.train(
-        data_generator,
-        validation_data=(cust_list_valid_x, cust_list_valid_y),
-        test_data=(cust_list_test_x, cust_list_test_y),
-        eval_samp_rate=eval_samp_rate,
+        train_data_generator,
+        validation_data_generator=validation_data_generator,
+        test_data_generator=test_data_generator,
         epochs=num_epochs,
+        validation_steps=validation_steps,
+        validation_freq=validation_freq,
         steps_per_epoch=steps_per_epoch,
         early_stopping_patience=early_stopping_patience,
         save_path=save_path,
