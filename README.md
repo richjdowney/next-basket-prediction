@@ -78,9 +78,9 @@ for each test) and run pytest.
 
 ### Planned future developments
 
-| Task Type           | Description                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------------|
-| Model Enhancement   | Add Attention layer to RNN model                                                           |
-| Model Enhancement   | Add customer embedding and additional dense layers to RNN model output                     |
-| Model Enhancement   | Add regularization layers                                                                  |
-| Model Enhancement   | Add additional embeddings for categorical contextual features e.g. categories in basket    |
+| Task Type           | Description                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------|
+| Model Enhancement   | Add custom binary cross-entropy loss function to weight loss for imbalanced classes                |
+| Model Enhancement   | Add option to use self-attention instead of simple embeddings to generate representation of basket |
+| Model Enhancement   | Add customer embedding and additional dense layers to RNN model output                             |
+| Model Enhancement   | Add additional embeddings for categorical contextual features e.g. categories in basket            |
