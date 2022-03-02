@@ -5,8 +5,8 @@
 This project contains a pipeline, orchestrated with Airflow, for generating predictions for a customers next basket
 using sequence models.  
 
-The initial version of the code utilizes an RNN model to generate probabilities that items will be found within the
-customers next transaction.
+The initial version of the code utilizes an LSTM model with Attention to generate probabilities that items will be 
+found within the customers next transaction.
 
 ### Data utilized
 
@@ -65,9 +65,11 @@ The next basket prediction model is based on the following architecture:
 
 The input data contains sequences of customer baskets.  The model is trained by first converting the items into
 embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
-basket is then passed through an LSTM layer.  A dense layer with a sigmoid activation then calculates the probability
-that each item will be found in the next basket of the customer sequence.  The final output of the sequence represents
-the customers prediction for their next transaction.
+basket is then passed through a bi-directional LSTM layer to allow the model to learn from all customer baskets.  
+
+The output of the LSTM layer is passed through an Attention layer and finally to a dense layer with a sigmoid 
+activation then calculates the probability that each item will be found in the next basket of the customer sequence.  
+The final output of the sequence represents the customers prediction for their next transaction.
 
 ### How to run tests
 

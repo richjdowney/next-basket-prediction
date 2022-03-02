@@ -128,6 +128,7 @@ class ConfigLSTMModel(pydantic.BaseModel):
     save_item_embeddings_path: str
     save_item_embeddings_period: int
     early_stopping_patience: int
+    reduce_learning_rate: bool
     save_period: int
 
 

@@ -4,13 +4,15 @@ from tensorflow.keras.layers import (
     LSTM,
     Dense,
     Input,
+    Bidirectional,
+    SpatialDropout1D,
 )
 from tensorflow.keras.models import Model
 from src.models.next_bask_pred_model import NextBasketPredModel
+from src.models.custom_layers import Attention
 
 
-class LSTMModel(NextBasketPredModel):
-
+class LSTMModel(NextBasketPredModel, Attention):
     def build(self):
         sequence_input = Input(
             shape=(
@@ -29,7 +31,19 @@ class LSTMModel(NextBasketPredModel):
         )(sequence_input)
 
         embedded_basket = tf.reduce_mean(embedded_sequence, axis=2)
-        lstm = LSTM(self._lstm_units, return_sequences=False)(embedded_basket)
-        sigmoid = Dense(self._num_prods + 1, activation="sigmoid")(lstm)
+        embedded_basket = SpatialDropout1D(0.2)(embedded_basket)
+
+        lstm = Bidirectional(
+            LSTM(
+                self._lstm_units,
+                dropout=0.2,
+                recurrent_dropout=0.2,
+                return_sequences=True,
+            )
+        )(embedded_basket)
+
+        attention = Attention()(lstm)
+
+        sigmoid = Dense(self._num_prods + 1, activation="sigmoid")(attention)
 
         self._model = Model(inputs=[sequence_input], outputs=sigmoid)

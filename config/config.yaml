@@ -5,7 +5,7 @@ model_train_dag:
   default_args:
       owner: "Rich"
       start_date: "2022-02-13"
-      end_date: "2022-02-28"
+      end_date: "2022-03-31"
       depends_on_past: False
       retries: 0
       catchup: False
@@ -70,26 +70,26 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
-  TrainOnly: "Yes"
+  TrainOnly: "No"
 
 datapreprocessing:
 
   # Config to data preprocessing parameters
   sample: "True"
-  sample_rate: "0.8"
+  sample_rate: "0.5"
   num_prods: "4900"
 
 lstmmodel:
 
   # Config for lstm model parameters
-  max_seq_length: "140"
+  max_seq_length: "80"
   max_items_in_bask: "16"
   embedding_size: 256
-  lstm_units: 50
+  lstm_units: 128
   item_embeddings_layer_name: "item_embedding_layer"
   train_batch_size: 32
   valid_batch_size: 32
-  test_batch_size: 2000
+  test_batch_size: 1000
   num_epochs: 10
   validation_steps: 100
   validation_freq: 1
@@ -98,7 +98,8 @@ lstmmodel:
   save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings/epoch_{}/"
   save_item_embeddings_period: 100
   early_stopping_patience: 5
-  save_period: 10
+  reduce_learning_rate: True
+  save_period: 100000
 
 s3:
 

@@ -2,7 +2,7 @@ from abc import ABCMeta
 from utils.logging_framework import log
 from src.models.model_utils import evaluate
 from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.models import load_model
 from tensorflow.keras.metrics import BinaryAccuracy, Recall, Precision
 import h5py
@@ -58,8 +58,8 @@ class NextBasketPredModel(object):
             loss="binary_crossentropy",
             metrics=[
                 BinaryAccuracy(name="binary_accuracy", threshold=0.5),
-                Recall(),
-                Precision(),
+                Recall(top_k=20),
+                Precision(top_k=20),
             ],
         )
 
@@ -73,6 +73,7 @@ class NextBasketPredModel(object):
         validation_steps=DEFAULT_VALIDATION_STEPS,
         validation_freq=DEFAULT_VALIDATION_FREQ,
         early_stopping_patience=None,
+        reduce_learning_rate=None,
         save_path=None,
         save_period=None,
         save_item_embeddings_path=None,
@@ -84,6 +85,15 @@ class NextBasketPredModel(object):
         if early_stopping_patience:
             callbacks.append(
                 EarlyStopping(monitor="loss", patience=early_stopping_patience)
+            )
+        if reduce_learning_rate:
+            ReduceLROnPlateau(
+                monitor="val_loss",
+                factor=0.6,
+                patience=1,
+                min_lr=1e-5,
+                verbose=1,
+                mode="min",
             )
         if save_path and save_period:
             callbacks.append(ModelCheckpoint(save_path, save_freq=save_period))

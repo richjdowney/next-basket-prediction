@@ -237,7 +237,9 @@ with DAG(**config["model_train_dag"]) as dag:
             "embedding_size": config["lstmmodel"]["embedding_size"],
             "lstm_units": config["lstmmodel"]["lstm_units"],
             "item_embeddings_layer_name": config["lstmmodel"]["item_embeddings_layer_name"],
-            "batch_size": config["lstmmodel"]["batch_size"],
+            "train_batch_size": config["lstmmodel"]["train_batch_size"],
+            "valid_batch_size": config["lstmmodel"]["valid_batch_size"],
+            "test_batch_size": config["lstmmodel"]["test_batch_size"],
             "num_epochs": config["lstmmodel"]["num_epochs"],
             "validation_steps": config["lstmmodel"]["validation_steps"],
             "validation_freq": config["lstmmodel"]["validation_freq"],
@@ -246,6 +248,7 @@ with DAG(**config["model_train_dag"]) as dag:
             "save_item_embeddings_path": config["lstmmodel"]["save_item_embeddings_path"],
             "save_item_embeddings_period": config["lstmmodel"]["save_item_embeddings_period"],
             "early_stopping_patience": config["lstmmodel"]["early_stopping_patience"],
+            "reduce_learning_rate": config["lstmmodel"]["reduce_learning_rate"],
             "save_period": config["lstmmodel"]["save_period"]
         },
         on_failure_callback=notify_email,

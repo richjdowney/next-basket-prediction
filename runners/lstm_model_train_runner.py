@@ -4,6 +4,7 @@ sys.path.insert(1, "/home/ubuntu/sequence_models")
 
 import os
 import numpy as np
+from tensorflow.keras.optimizers import Adam
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from keras.utils.vis_utils import plot_model
 from src.generators.lstm_generator import lstm_data_generator
@@ -31,6 +32,7 @@ def task_lstm_model_fit(
     save_item_embeddings_path: str,
     save_item_embeddings_period: int,
     early_stopping_patience: int,
+    reduce_learning_rate: bool,
     save_period: int,
 ):
 
@@ -58,7 +60,11 @@ def task_lstm_model_fit(
     cust_list_valid_x = download_s3("cust_list_valid_x.txt", bucket, s3)
     cust_list_valid_y = download_s3("cust_list_valid_y.txt", bucket, s3)
 
-    log.info("shape of valid_x {}, shape of valid_y {}".format(np.shape(cust_list_valid_x), np.shape(cust_list_valid_y)))
+    log.info(
+        "shape of valid_x {}, shape of valid_y {}".format(
+            np.shape(cust_list_valid_x), np.shape(cust_list_valid_y)
+        )
+    )
 
     # Download test data
     cust_list_test_x = download_s3("cust_list_test_x.txt", bucket, s3)
@@ -101,7 +107,9 @@ def task_lstm_model_fit(
     )
 
     m.build()
-    m.compile(learning_rate=0.1)
+    m.compile(
+        optimizer=Adam(learning_rate=0.001)
+    )
 
     # Plot model
     plot_model(
@@ -122,6 +130,7 @@ def task_lstm_model_fit(
         validation_freq=validation_freq,
         steps_per_epoch=steps_per_epoch,
         early_stopping_patience=early_stopping_patience,
+        reduce_learning_rate=reduce_learning_rate,
         save_path=save_path,
         save_period=save_period,
         save_item_embeddings_path=save_item_embeddings_path,
