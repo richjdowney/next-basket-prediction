@@ -21,6 +21,20 @@ https://www.dunnhumby.com/careers/engineering/sourcefiles
 The actual data utilized was from the “Let’s get sort of real” section, specifically the data from a randomly selected 
 group of 5,000 customers.
 
+### Model Details
+
+The next basket prediction model is based on the following architecture:
+
+![](Images/next_bask_architecture.PNG)  
+
+The input data contains sequences of customer baskets.  The model is trained by first converting the items into
+embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
+basket is then passed through a bi-directional LSTM layer to allow the model to learn from all customer baskets.  
+
+The output of the LSTM layer is passed through an Attention layer and finally to a dense layer with a sigmoid 
+activation then calculates the probability that each item will be found in the next basket of the customer sequence.  
+The final output of the sequence represents the customers prediction for their next transaction.
+
 ### Infrastructure
 
 The infrastructure utilized in the pipeline is shown in the diagram below:
@@ -54,22 +68,7 @@ The DAG contains the following tasks:
 **add_step_data_XXX:**  Adds Spark steps for staging data and pre-processing data into output required for modeling  
 **watch_stage_XXX:**  Sensors for each staging step to determine when they are complete  
 **remove_cluster:**  Terminates the cluster when all steps are completed  
-**run_lstm_model_train:**  Runs LSTM model training  
-
-
-### Model Details
-
-The next basket prediction model is based on the following architecture:
-
-![](Images/next_bask_architecture.PNG)  
-
-The input data contains sequences of customer baskets.  The model is trained by first converting the items into
-embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
-basket is then passed through a bi-directional LSTM layer to allow the model to learn from all customer baskets.  
-
-The output of the LSTM layer is passed through an Attention layer and finally to a dense layer with a sigmoid 
-activation then calculates the probability that each item will be found in the next basket of the customer sequence.  
-The final output of the sequence represents the customers prediction for their next transaction.
+**run_lstm_model_train:**  Runs LSTM model training
 
 ### How to run tests
 
