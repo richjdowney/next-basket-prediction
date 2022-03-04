@@ -35,6 +35,12 @@ The output of the LSTM layer is passed through an Attention layer and finally to
 activation then calculates the probability that each item will be found in the next basket of the customer sequence.  
 The final output of the sequence represents the customers prediction for their next transaction.
 
+The code includes an option to utilize a weighted BCE loss.  This weights the loss in each class to assume a balanced
+sample and prevents the algorithm from predicting all 0 (no purchase).  This is recommended due to the extreme 
+class imbalance of the problem.  The weighted BCE loss is implemented via a custom loss function as the class_weights
+parameter in Keras is implemented for one class or multi-class classification but not for multi-label 
+classification problems.
+
 ### Infrastructure
 
 The infrastructure utilized in the pipeline is shown in the diagram below:
@@ -80,7 +86,6 @@ for each test) and run pytest.
 
 | Task Type           | Description                                                                                        |
 | ------------------- | ---------------------------------------------------------------------------------------------------|
-| Model Enhancement   | Add custom binary cross-entropy loss function to weight loss for imbalanced classes                |
 | Model Enhancement   | Add option to use self-attention instead of simple embeddings to generate representation of basket |
 | Model Enhancement   | Add customer embedding and additional dense layers to RNN model output                             |
 | Model Enhancement   | Add additional embeddings for categorical contextual features e.g. categories in basket            |
