@@ -31,9 +31,13 @@ The input data contains sequences of customer baskets.  The model is trained by 
 embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
 basket is then passed through a bi-directional LSTM layer to allow the model to learn from all customer baskets.  
 
-The output of the LSTM layer is passed through an Attention layer and finally to a dense layer with a sigmoid 
-activation then calculates the probability that each item will be found in the next basket of the customer sequence.  
-The final output of the sequence represents the customers prediction for their next transaction.
+The output of the LSTM layer is passed through an Attention layer, this can help with predictions as the model learns
+to "attend" to the correct parts of the basket sequence.  For example, in grocery, baskets often rotate between "full"
+and "top up" shops and the Attention layer helps the model to learn from cyclical buying patterns.
+
+Finally to a dense layer with a sigmoid activation then calculates the probability that each item will be found in the 
+next basket of the customer sequence.  The final output of the sequence represents the customers prediction 
+for their next transaction.
 
 The code includes an option to utilize a weighted BCE loss.  This weights the loss in each class to assume a balanced
 sample and prevents the algorithm from predicting all 0 (no purchase).  This is recommended due to the extreme 
