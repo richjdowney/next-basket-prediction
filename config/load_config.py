@@ -124,6 +124,7 @@ class ConfigLSTMModel(pydantic.BaseModel):
     validation_steps: int
     validation_freq: int
     steps_per_epoch: int
+    use_class_weights: bool
     save_path: str
     save_item_embeddings_path: str
     save_item_embeddings_period: int

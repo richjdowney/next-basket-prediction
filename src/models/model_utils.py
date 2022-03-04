@@ -1,5 +1,6 @@
 from utils.logging_framework import log
 from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.models import Model
 import numpy as np
 
@@ -33,3 +34,39 @@ def evaluate(model: Model, test_data: np.array):
     f1 = f1_score(y, validation_preds, average="macro")
 
     log.info(f"Test precision: {precision} / Test recall: {recall} / Test F1: {f1}")
+
+
+def get_class_weights(y: np.array) -> tuple([np.array, np.array]):
+    """Generates class weights required to balance the sample of a multi-label classification problem
+
+        Parameters
+        ----------
+        y: np.array
+          Array containing the "true" y values
+
+        Returns
+        -------
+        negative_class_weights: np.array
+            Negative example class weights
+        positive_class_weight: np.array
+            Positive example class weights
+
+        """
+
+    negative_class_weights = []
+    positive_class_weights = []
+    class_index = np.arange(0, np.shape(y)[1])
+
+    for class_num in class_index:
+        try:
+            y_class = [item[class_num] for item in y]
+            cw = compute_class_weight('balanced', classes=[0, 1], y=y_class)
+            negative_class_weights.append(cw[0])
+            positive_class_weights.append(cw[1])
+        except:
+            # Error trap if there are not negative AND positive examples in a class
+            # Treats both negative and positive equally
+            negative_class_weights.append(1.0)
+            positive_class_weights.append(1.0)
+
+    return negative_class_weights, positive_class_weights

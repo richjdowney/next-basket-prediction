@@ -1,8 +1,14 @@
 from abc import ABCMeta
 from utils.logging_framework import log
 from src.models.model_utils import evaluate
+from src.models.custom_loss import weighted_bce_loss
 from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.callbacks import (
+    Callback,
+    EarlyStopping,
+    ModelCheckpoint,
+    ReduceLROnPlateau,
+)
 from tensorflow.keras.models import load_model
 from tensorflow.keras.metrics import BinaryAccuracy, Recall, Precision
 import h5py
@@ -26,8 +32,11 @@ class NextBasketPredModel(object):
         max_seq_length,
         max_items_in_bask,
         item_embeddings_layer_name,
+        use_class_weights,
         embedding_size=DEFAULT_EMBEDDING_SIZE,
         lstm_units=DEFAULT_LSTM_UNITS,
+        negative_class_weights=None,
+        positive_class_weights=None,
     ):
 
         self._num_prods = num_prods
@@ -37,6 +46,9 @@ class NextBasketPredModel(object):
         self._embedding_size = embedding_size
         self._item_embeddings_layer_name = item_embeddings_layer_name
         self._lstm_units = lstm_units
+        self._use_class_weights = use_class_weights
+        self._negative_class_weights = (negative_class_weights,)
+        self._positive_class_weights = (positive_class_weights,)
 
         self._model = None
 
@@ -53,15 +65,29 @@ class NextBasketPredModel(object):
         if not optimizer:
             optimizer = SGD(learning_rate=learning_rate, momentum=0.9, nesterov=True)
 
-        self._model.compile(
-            optimizer=optimizer,
-            loss="binary_crossentropy",
-            metrics=[
-                BinaryAccuracy(name="binary_accuracy", threshold=0.5),
-                Recall(top_k=20),
-                Precision(top_k=20),
-            ],
-        )
+        if self._use_class_weights:
+            self._model.compile(
+                optimizer=optimizer,
+                loss=weighted_bce_loss(
+                    negative_class_weights=self._negative_class_weights,
+                    positive_class_weights=self._positive_class_weights,
+                ),
+                metrics=[
+                    BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                    Recall(top_k=20),
+                    Precision(top_k=20),
+                ],
+            )
+        else:
+            self._model.compile(
+                optimizer=optimizer,
+                loss="binary_crossentropy",
+                metrics=[
+                    BinaryAccuracy(name="binary_accuracy", threshold=0.5),
+                    Recall(top_k=20),
+                    Precision(top_k=20),
+                ],
+            )
 
     def train(
         self,

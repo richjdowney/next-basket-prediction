@@ -244,6 +244,7 @@ with DAG(**config["model_train_dag"]) as dag:
             "validation_steps": config["lstmmodel"]["validation_steps"],
             "validation_freq": config["lstmmodel"]["validation_freq"],
             "steps_per_epoch": config["lstmmodel"]["steps_per_epoch"],
+            "use_class_weights": config["lstmmodel"]["use_class_weights"],
             "save_path": config["lstmmodel"]["save_path"],
             "save_item_embeddings_path": config["lstmmodel"]["save_item_embeddings_path"],
             "save_item_embeddings_period": config["lstmmodel"]["save_item_embeddings_period"],

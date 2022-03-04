@@ -20,10 +20,11 @@ class Attention(Layer):
             self.b = self.add_weight(shape=(input_shape[1],), initializer='zero')
 
     def call(self, x):
-        eij = tf.tensordot(x, self.W, 1)
 
         if self.add_bias:
-            eij + self.b
+            eij = tf.tensordot(x, self.W, 1) + self.b
+        else:
+            eij = tf.tensordot(x, self.W, 1)
 
         eij = tf.tanh(eij)
         a = K.softmax(eij)

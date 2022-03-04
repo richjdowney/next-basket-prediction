@@ -94,6 +94,7 @@ lstmmodel:
   validation_steps: 100
   validation_freq: 1
   steps_per_epoch: 5000
+  use_class_weights: True
   save_path: "/home/ubuntu/sequence_models/model_out/lstm_model/"
   save_item_embeddings_path: "/home/ubuntu/sequence_models/model_out/item_embeddings/epoch_{}/"
   save_item_embeddings_period: 100

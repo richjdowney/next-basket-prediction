@@ -9,6 +9,7 @@ from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from keras.utils.vis_utils import plot_model
 from src.generators.lstm_generator import lstm_data_generator
 from src.models.sequence_models import LSTMModel
+from src.models.model_utils import get_class_weights
 from utils.logging_framework import log
 from utils.general import download_s3
 import boto3
@@ -28,6 +29,7 @@ def task_lstm_model_fit(
     validation_steps: int,
     validation_freq: int,
     steps_per_epoch: int,
+    use_class_weights: bool,
     save_path: str,
     save_item_embeddings_path: str,
     save_item_embeddings_period: int,
@@ -97,6 +99,11 @@ def task_lstm_model_fit(
         shuffle=True,
     )
 
+    # calculate class weights if required - recommended for class imbalance
+    if use_class_weights:
+        log.info("Calculating class weights")
+        negative_class_weights, positive_class_weights = get_class_weights(cust_list_train_y)
+
     m = LSTMModel(
         num_prods=num_prods,
         max_seq_length=max_seq_length,
@@ -104,6 +111,9 @@ def task_lstm_model_fit(
         embedding_size=embedding_size,
         lstm_units=lstm_units,
         item_embeddings_layer_name=item_embeddings_layer_name,
+        use_class_weights=use_class_weights,
+        negative_class_weights=negative_class_weights,
+        positive_class_weights=positive_class_weights,
     )
 
     m.build()
