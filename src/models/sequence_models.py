@@ -6,6 +6,7 @@ from tensorflow.keras.layers import (
     Input,
     Bidirectional,
     SpatialDropout1D,
+    Dropout,
 )
 from tensorflow.keras.models import Model
 from src.models.next_bask_pred_model import NextBasketPredModel
@@ -44,6 +45,8 @@ class LSTMModel(NextBasketPredModel, Attention):
 
         attention = Attention()(lstm)
 
-        sigmoid = Dense(self._num_prods + 1, activation="sigmoid")(attention)
+        drop1 = Dropout(0.2)(attention)
+
+        sigmoid = Dense(self._num_prods + 1, activation="sigmoid")(drop1)
 
         self._model = Model(inputs=[sequence_input], outputs=sigmoid)
