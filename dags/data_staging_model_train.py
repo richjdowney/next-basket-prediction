@@ -19,7 +19,6 @@ from config.load_config import load_yaml
 from config import constants
 from config.load_config import Config
 from utils.send_email import notify_email
-from utils.logging_framework import log
 from utils.copy_app_to_s3 import copy_app_to_s3
 from runners.lstm_model_train_runner import *
 

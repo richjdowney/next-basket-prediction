@@ -70,7 +70,7 @@ app:
   LSTMModelTrainRunner: "lstm_model_train_runner.py"
   DependenciesShell: "install_dependencies.sh"
   Requirements: "requirements.txt"
-  TrainOnly: "No"
+  TrainOnly: "Yes"
 
 datapreprocessing:
 

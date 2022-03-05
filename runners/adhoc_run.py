@@ -12,6 +12,9 @@ from src.models.sequence_models import LSTMModel
 from src.models.model_utils import get_class_weights
 from utils.logging_framework import log
 from utils.general import download_s3
+from config.load_config import load_yaml
+from config import constants
+from config.load_config import Config
 import boto3
 
 
@@ -106,6 +109,8 @@ def task_lstm_model_fit(
             cust_list_train_y
         )
 
+    print(positive_class_weights[0:5])
+
     m = LSTMModel(
         num_prods=num_prods,
         max_seq_length=max_seq_length,
@@ -148,14 +153,33 @@ def task_lstm_model_fit(
         item_embeddings_layer_name=item_embeddings_layer_name,
     )
 
-    if save_path:
-        full_path = os.path.join(save_path, "final")
-        m.save(full_path)
+# Load the config file
+config = load_yaml(constants.config_path)
 
-    if save_item_embeddings_path:
-        m.save_item_embeddings(save_item_embeddings_path, epoch="final")
+# Check the config types
+try:
+    Config(**config)
+except TypeError as error:
+    log.error(error)
 
-        log.info("Uploading embeddings to s3")
-        filename = save_item_embeddings_path.format("final")
-        full_path = os.path.join(filename, "item_embeddings.hdf5")
-        s3.upload_file(Filename=full_path, Key=full_path, Bucket=bucket)
+
+task_lstm_model_fit(bucket=config["s3"]["Bucket"],
+            max_seq_length=config["lstmmodel"]["max_seq_length"],
+            max_items_in_bask=config["lstmmodel"]["max_items_in_bask"],
+            embedding_size= config["lstmmodel"]["embedding_size"],
+            lstm_units= config["lstmmodel"]["lstm_units"],
+            item_embeddings_layer_name= config["lstmmodel"]["item_embeddings_layer_name"],
+            train_batch_size = config["lstmmodel"]["train_batch_size"],
+            valid_batch_size= config["lstmmodel"]["valid_batch_size"],
+            test_batch_size= config["lstmmodel"]["test_batch_size"],
+            num_epochs= config["lstmmodel"]["num_epochs"],
+            validation_steps= config["lstmmodel"]["validation_steps"],
+            validation_freq= config["lstmmodel"]["validation_freq"],
+            steps_per_epoch= config["lstmmodel"]["steps_per_epoch"],
+            use_class_weights= config["lstmmodel"]["use_class_weights"],
+            save_path=config["lstmmodel"]["save_path"],
+            save_item_embeddings_path= config["lstmmodel"]["save_item_embeddings_path"],
+            save_item_embeddings_period= config["lstmmodel"]["save_item_embeddings_period"],
+            early_stopping_patience= config["lstmmodel"]["early_stopping_patience"],
+            reduce_learning_rate= config["lstmmodel"]["reduce_learning_rate"],
+            save_period= config["lstmmodel"]["save_period"])
