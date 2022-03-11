@@ -5,8 +5,8 @@
 This project contains a pipeline, orchestrated with Airflow, for generating predictions for a customers next basket
 using sequence models.  
 
-The initial version of the code utilizes an LSTM model with Attention to generate probabilities that items will be 
-found within the customers next transaction.
+The initial version of the code utilizes encoder layers with self-attention and an LSTM model with Attention to 
+generate probabilities that items will be found within the customers next transaction.
 
 ### Data utilized
 
@@ -28,8 +28,19 @@ The next basket prediction model is based on the following architecture:
 ![](Images/next_bask_architecture.PNG)  
 
 The input data contains sequences of customer baskets.  The model is trained by first converting the items into
-embeddings.  A representation of the basket is then generated using average pooling.  This representation of the
-basket is then passed through a bi-directional LSTM layer to allow the model to learn from all customer baskets.  
+embeddings.  These embeddings are passed through a standard encoder layer from the transformer architecture:
+
+![](Images/encoder.PNG)
+
+The idea of the encoder is to allow the model to better learn relationships and similarities between items, 
+e.g. items that never appear together (substitutes) and items that frequently appear together (complimentary items).
+In addition, the encoder layer allows for an optional positional encoding - while in traditional brick and mortar 
+retail examples this may not be relevant in e-commerce the order in which items are added to carts could add additional
+insights into the prediction.
+
+After encoding, a representation of the basket is then generated through either a dense layer (as illustrated) or
+simple average pooling.  This representation of the basket is then passed through a bi-directional LSTM layer to 
+allow the model to learn from all customer baskets.  
 
 The output of the LSTM layer is passed through an Attention layer, this can help with predictions as the model learns
 to "attend" to the correct parts of the basket sequence.  For example, in grocery, baskets often rotate between "full"
