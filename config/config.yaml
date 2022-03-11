@@ -86,6 +86,11 @@ lstmmodel:
   max_items_in_bask: "16"
   d_model: 128
   lstm_units: 16
+  num_heads: 2
+  dff: 256
+  transformer_encode: True
+  basket_pool: "dense"
+  run_pos_encoding: False
   item_embeddings_layer_name: "item_embedding_layer"
   train_batch_size: 32
   valid_batch_size: 32

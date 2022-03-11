@@ -116,6 +116,11 @@ class ConfigLSTMModel(pydantic.BaseModel):
     max_items_in_bask: str
     d_model: int
     lstm_units: int
+    num_heads: int
+    dff: int
+    transformer_encode: bool
+    basket_pool: str
+    run_pos_encoding: bool
     item_embeddings_layer_name: str
     train_batch_size: int
     valid_batch_size: int
