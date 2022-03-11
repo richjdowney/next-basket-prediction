@@ -21,6 +21,11 @@ DEFAULT_NUM_EPOCHS = 250
 DEFAULT_STEPS_PER_EPOCH = 10000
 DEFAULT_VALIDATION_STEPS = 100
 DEFAULT_VALIDATION_FREQ = 1
+DEFAULT_NUM_HEADS = 1
+DEFAULT_DFF = 256
+DEFAULT_TRANSFORMER_ENCODE = False
+DEFAULT_BASKET_POOL = "dense"
+DEFAULT_RUN_POS_ENCODING = False
 
 
 class NextBasketPredModel(object):
@@ -31,6 +36,11 @@ class NextBasketPredModel(object):
         num_prods,
         max_seq_length,
         max_items_in_bask,
+        num_heads,
+        dff,
+        transformer_encode,
+        basket_pool,
+        run_pos_encoding,
         item_embeddings_layer_name,
         use_class_weights,
         d_model=DEFAULT_D_MODEL,
@@ -42,8 +52,12 @@ class NextBasketPredModel(object):
         self._num_prods = num_prods
         self._max_seq_length = max_seq_length
         self._max_items_in_bask = max_items_in_bask
-
         self._d_model = d_model
+        self._num_heads = num_heads
+        self._dff = dff
+        self._transformer_encode = transformer_encode
+        self._basket_pool = basket_pool
+        self._run_pos_encoding = run_pos_encoding
         self._item_embeddings_layer_name = item_embeddings_layer_name
         self._lstm_units = lstm_units
         self._use_class_weights = use_class_weights
