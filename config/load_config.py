@@ -114,7 +114,7 @@ class ConfigLSTMModel(pydantic.BaseModel):
 
     max_seq_length: str
     max_items_in_bask: str
-    embedding_size: int
+    d_model: int
     lstm_units: int
     item_embeddings_layer_name: str
     train_batch_size: int

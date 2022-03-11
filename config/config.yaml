@@ -84,8 +84,8 @@ lstmmodel:
   # Config for lstm model parameters
   max_seq_length: "80"
   max_items_in_bask: "16"
-  embedding_size: 256
-  lstm_units: 32
+  d_model: 128
+  lstm_units: 16
   item_embeddings_layer_name: "item_embedding_layer"
   train_batch_size: 32
   valid_batch_size: 32

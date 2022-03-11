@@ -233,7 +233,7 @@ with DAG(**config["model_train_dag"]) as dag:
             "bucket": config["s3"]["Bucket"],
             "max_seq_length": config["lstmmodel"]["max_seq_length"],
             "max_items_in_bask": config["lstmmodel"]["max_items_in_bask"],
-            "embedding_size": config["lstmmodel"]["embedding_size"],
+            "d_model": config["lstmmodel"]["d_model"],
             "lstm_units": config["lstmmodel"]["lstm_units"],
             "item_embeddings_layer_name": config["lstmmodel"]["item_embeddings_layer_name"],
             "train_batch_size": config["lstmmodel"]["train_batch_size"],

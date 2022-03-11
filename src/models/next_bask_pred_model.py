@@ -15,7 +15,7 @@ import h5py
 import os
 
 
-DEFAULT_EMBEDDING_SIZE = 300
+DEFAULT_D_MODEL = 300
 DEFAULT_LSTM_UNITS = 50
 DEFAULT_NUM_EPOCHS = 250
 DEFAULT_STEPS_PER_EPOCH = 10000
@@ -33,7 +33,7 @@ class NextBasketPredModel(object):
         max_items_in_bask,
         item_embeddings_layer_name,
         use_class_weights,
-        embedding_size=DEFAULT_EMBEDDING_SIZE,
+        d_model=DEFAULT_D_MODEL,
         lstm_units=DEFAULT_LSTM_UNITS,
         negative_class_weights=None,
         positive_class_weights=None,
@@ -43,7 +43,7 @@ class NextBasketPredModel(object):
         self._max_seq_length = max_seq_length
         self._max_items_in_bask = max_items_in_bask
 
-        self._embedding_size = embedding_size
+        self._d_model = d_model
         self._item_embeddings_layer_name = item_embeddings_layer_name
         self._lstm_units = lstm_units
         self._use_class_weights = use_class_weights

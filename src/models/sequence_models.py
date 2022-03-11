@@ -26,7 +26,7 @@ class LSTMModel(NextBasketPredModel, Attention):
             input_dim=self._num_prods + 1,
             input_shape=(self._max_items_in_bask,),
             input_length=self._max_seq_length,
-            output_dim=self._embedding_size,
+            output_dim=self._d_model,
             mask_zero=True,
             name=self._item_embeddings_layer_name,
         )(sequence_input)
