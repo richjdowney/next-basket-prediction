@@ -96,11 +96,3 @@ The DAG contains the following tasks:
 Unit tests have been written with pytest to test functions for data staging, data preprocessing, model pre precessing
 and to test the generator used for the LSTM model.  To run the tests navigate to the tests folder (or sub directories
 for each test) and run pytest.
-
-### Planned future developments
-
-| Task Type           | Description                                                                                        |
-| ------------------- | ---------------------------------------------------------------------------------------------------|
-| Model Enhancement   | Add option to use self-attention instead of simple embeddings to generate representation of basket |
-| Model Enhancement   | Add customer embedding and additional dense layers to RNN model output                             |
-| Model Enhancement   | Add additional embeddings for categorical contextual features e.g. categories in basket            |
